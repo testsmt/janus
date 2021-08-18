@@ -1,0 +1,5 @@
+(declare-const i Int)
+(declare-const j Int)
+(assert (=> (and (>= i 0) (>= j 0)) (str.prefixof (str.substr "AZtxslXT" 0 i) (str.substr "AZtxslXT" 0 j))))
+(assert (<= 1 2 3))
+(check-sat)

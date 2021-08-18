@@ -1,0 +1,5 @@
+(declare-fun a () String)
+(declare-fun b () String)
+(declare-fun c () String)
+(assert (not (or (str.prefixof (str.++ b c) a) (str.suffixof (str.++ b c) a))))
+(check-sat)

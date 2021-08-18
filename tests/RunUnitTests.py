@@ -26,6 +26,8 @@ import unittest
 from tests.unit.TestTerm import TermTestCase
 from tests.unit.TestParsing import ParsingTestCase
 from tests.unit.TestTypechecker import TypecheckerTestCase
+from tests.unit.test_imp_based import ImpBasedUnitTest
+
 
 sys.path.append("../")
 

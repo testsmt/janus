@@ -1,0 +1,17 @@
+(declare-fun a () Real)
+(declare-fun b () Real)
+(declare-fun c () Real)
+(declare-fun d () Real)
+(declare-fun g () Real)
+(declare-fun e () Real)
+(declare-fun f () Real)
+(declare-fun j () Real)
+(declare-fun h () Real)
+(assert
+ (not
+ (exists ((i Real))
+  (=> (>= b 1)
+  (> f (+ j (* b b) (* (+ (/ c d) 1) b)) a g 0)
+  (= e 0)
+  (not (= f j h))))))
+(check-sat)

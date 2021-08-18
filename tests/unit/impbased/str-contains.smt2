@@ -1,0 +1,5 @@
+(declare-fun a () String)
+(declare-fun b () String)
+(declare-fun c () String)
+(assert (not (str.contains a (str.++ b c))))
+(check-sat)

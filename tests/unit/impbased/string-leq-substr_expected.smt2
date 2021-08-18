@@ -1,0 +1,7 @@
+(declare-const s1 String)
+(declare-const s2 String)
+(declare-const s3 String)
+(assert (= 1 1))
+(assert (str.<= (str.substr s1 0 (ite (<= 0 1 (- (str.len s1) 1)) 1 (str.len s1))) s2))
+(assert (str.<= (str.substr s2 0 (ite (<= 0 1 (- (str.len s2) 1)) 1 (str.len s2))) s3))
+(check-sat)

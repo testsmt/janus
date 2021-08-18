@@ -1,0 +1,31 @@
+(declare-fun I1uscore3dollarskuscore590 () Real)
+(declare-fun v1 () Real)
+(declare-fun t2679uscore0 () Real)
+(declare-fun A () Real)
+(declare-fun B () Real)
+(declare-fun v2 () Real)
+(declare-fun ts2679uscore0 () Real)
+(declare-fun v1uscore3dollarskuscore590 () Real)
+(declare-fun I1 () Real)
+(declare-fun I2 () Real)
+(declare-fun x2 () Real)
+(declare-fun x1 () Real)
+(declare-fun v2uscore3dollarskuscore590 () Real)
+(declare-fun xI1 () Real)
+(declare-fun xI2 () Real)
+(declare-fun V () Real)
+(declare-fun ep () Real)
+(declare-fun I2uscore3dollarskuscore590 () Real)
+(assert (not (exists ((ts2679uscore0 Real)) (let ((?v_3 (= I2uscore3dollarskuscore590 2))(?v_1 (* (* (- 1) B) ts2679uscore0))) (let ((?v_0 (+ ?v_1 v1uscore3dollarskuscore590))(?v_2 (+ ?v_1 v2uscore3dollarskuscore590)))
+(ite
+(and (and (and (and (and (and (and (and (and (and (and (and (and (= I1uscore3dollarskuscore590 0) ?v_3) (= I1 2)) (< xI1 x1)) (= I2 2)) (> xI2 (+ x2 (/ (* v2 v2) (* 2 B))))) (> B 0)) (>= v1 0)) (<= v1 V)) (>= v2 0)) (<= v2 V)) (>= A 0)) (> V 0)) (> ep 0))
+
+(forall ((x0 Bool)) (=>
+	(and x0
+		(>= t2679uscore0 0))
+	(and x0
+	(=> (=> (and (<= 0 ts2679uscore0) (<= ts2679uscore0 t2679uscore0)) (and (and (and (and (>= ?v_0 0) (<= ?v_0 V)) (> ?v_2 0)) (<= ?v_2 V)) (<= (+ ts2679uscore0 0) ep))) (exists ((x0 Bool)) (ite x0 (= 1 2) ?v_3))))
+))
+true)
+)))))
+(check-sat)

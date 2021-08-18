@@ -1,0 +1,5 @@
+(declare-const i Int)
+(declare-const j Int)
+(assert (<= i j))
+(assert (<= 1 2 3))
+(check-sat)

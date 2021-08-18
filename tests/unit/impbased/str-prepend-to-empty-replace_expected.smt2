@@ -1,0 +1,7 @@
+(declare-const s1 String)
+(declare-const s2 String)
+(declare-const s3 String)
+(declare-const s4 String)
+(assert (str.<= s3 (str.++ (str.replace s2 "" s1) s4)))
+(assert (= (str.++ "def" "abc") "defabc"))
+(check-sat)

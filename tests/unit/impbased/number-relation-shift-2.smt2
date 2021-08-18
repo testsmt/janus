@@ -1,0 +1,6 @@
+(assert (> 2 1))
+(assert (<= 0 (+ 3 4)))
+(assert (>= (- 0) 0))
+(assert (distinct (+ 1 1) 3 5 7))
+(assert (= (+ 1 1) 2))
+(check-sat)
