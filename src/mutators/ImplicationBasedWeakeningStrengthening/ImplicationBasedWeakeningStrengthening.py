@@ -382,6 +382,4 @@ class ImplicationBasedWeakeningStrengthening(Mutator):
         if not success:
             logging.info("No rule applies.")
 
-        #return self.script, success, chosen_rule
-        print(self.script)
-        return self.script, success, False 
+        return self.script, success, chosen_rule

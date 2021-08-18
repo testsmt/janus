@@ -126,3 +126,15 @@ class Solver:
             print("output: " + stdout + "\n" + stderr)
 
         return stdout, stderr, returncode
+
+    def solve_to_result(self, file, timeout, debug=False):                         
+        stdout, stderr, exitcode = self.solve(file, timeout, debug)                
+        if exitcode == 0 and stderr.strip() == "":                                 
+            if stdout.strip() == "sat":                                            
+                return SolverQueryResult.SAT                                       
+            if stdout.strip() == "unsat":                                          
+                return SolverQueryResult.UNSAT                                     
+            if stdout.strip() == "unknown":                                        
+                return SolverQueryResult.UNKNOWN                                   
+                                                                                   
+        return SolverQueryResult.NORESULT

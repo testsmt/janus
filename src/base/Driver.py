@@ -139,7 +139,9 @@ def run_checks(parser, strategy):
     if not args.PATH_TO_SEEDS:
         parser.error("no seed-file/seed folder specified")
 
-    check_solver_clis()
+    # check_solver_clis()
+    args.SOLVER_CLIS = map(lambda sol: sol.split("|"), args.SOLVER_CLIS.split(";"))
+    args.SOLVER_CLIS = [sol + [None]*(2 - len(sol)) for sol in args.SOLVER_CLIS]
     check_timeout()
     check_iterations()
     create_bug_folder()
