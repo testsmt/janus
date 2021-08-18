@@ -275,7 +275,7 @@ class Fuzzer:
 
                     elif exitcode == 137: #timeout
                         self.statistic.timeout += 1
-                        logging.info("Solver timeout occured. sol="+str(solver_cli)+".")
+                        logging.info("Solver timeout occurred. sol="+str(solver_cli)+".")
                         continue # continue with next solver (4)
 
                     elif exitcode == 127: #command not found

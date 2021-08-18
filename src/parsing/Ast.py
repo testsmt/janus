@@ -627,7 +627,7 @@ class Term:
         # TODO This is a workaround for https://github.com/wintered/formula-weaking-strengthening/issues/2.
         #                                                                       
         # Basically, integer literals are always typed 'Int' even in 'Real' expressions,
-        # so we manaully identifiy these two sorts when checking for equality with this method. 
+        # so we manually identifiy these two sorts when checking for equality with this method. 
         if 'Real' in typs:                                                      
             typs.append('Int')                                                  
         if 'Int' in typs:                                                       

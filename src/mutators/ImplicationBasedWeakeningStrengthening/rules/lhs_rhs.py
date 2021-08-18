@@ -787,7 +787,7 @@ class StringLeqSubstr(Implication):
         expression.subterms = [Expr('str.substr', [t, Const('0', type='Int'), valid_substr_index(t)], type='String') for t in expression.subterms[:split]] + expression.subterms[split:]
 
 # ========================================================================
-# TODO move these instantiations direclty into the generator
+# TODO move these instantiations directly into the generator
 
 
 def RelationPreservingAutomorphism(R, f, r, name):
