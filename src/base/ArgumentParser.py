@@ -92,7 +92,46 @@ def add_args(parser, rootpath, current_dir):
         "--file-size-limit",
         metavar="num_bytes",
         default=100000,
+    )
+    parser.add_argument(
+        "-i", "--iterations",
+        default=100,
+    )
+    parser.add_argument(
+        "-o",
+        "--oracle",
+        default="sat",
+        metavar="{sat,unsat}",
+        type=str,
+    )
+    parser.add_argument(
+        "-ss", "--step-size",
         type=int,
+        default=1,
+        help="[impbased] Target number of strengthening/weakening rules to apply in a single mutation step (default: 1)",
+    )
+    parser.add_argument(
+        "-wl", "--walk-length",
+        type=int,
+        default=1,
+        help="[impbased] Number of incremental steps before restarting on the seed (default: 1). \
+        This corresponds to a fully non-incremental solver and a fully incremental generator is obtained by setting \
+        '--walk-length' equal to '--iterations'.",
+    )
+    parser.add_argument(
+        "-cr", "--completeness-regressions",
+        type=str,
+        default="",
+        help="[impbased] Pass a single solver command to search for completeness regressions against. (default: 1).\
+              This disables soundness testing and instead searches for completeness regressions in any configured solver\
+              against the solver passed here.\
+              A standard setup is to use the latest release of a solver here and configure trunk version(s) as solver(s)\
+              to be tested.",
+    )
+    parser.add_argument(
+        "-rs", "--rule-set",
+        default=None,
+        help="Restrict rule set to a fixed subset (default: None)",
     )
 
 
@@ -104,5 +143,5 @@ def build_toolname_parser(rootpath, current_dir, usage):
         add_help=False,
     )
     add_args(parser, current_dir, rootpath)
-
+    
     return parser

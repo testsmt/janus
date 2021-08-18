@@ -73,21 +73,7 @@ def grep_result(stdout):
 
 
 def get_seeds(args, strategy):
-    if strategy in ["opfuzz", "typefuzz"]:
-        seeds = args.PATH_TO_SEEDS
-    elif strategy == "yinyang":
-        if len(args.PATH_TO_SEEDS) > 2:
-            seeds = [(a, b)
-                     for a in args.PATH_TO_SEEDS
-                     for b in args.PATH_TO_SEEDS]
-        elif len(args.PATH_TO_SEEDS) == 2:
-            seeds = [(args.PATH_TO_SEEDS[0], args.PATH_TO_SEEDS[1])]
-        else:
-            assert False
-    else:
-        assert False
-
-    return seeds
+    return args.PATH_TO_SEEDS
 
 
 def init_oracle(args):

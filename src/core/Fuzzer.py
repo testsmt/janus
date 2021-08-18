@@ -61,6 +61,8 @@ from src.core.FuzzerUtil import (
     in_ignore_list,
     init_oracle,
 )
+from src.mutators.ImplicationBasedWeakeningStrengthening.ImplicationBasedWeakeningStrengthening import ImplicationBasedWeakeningStrengthening
+
 
 MAX_TIMEOUTS = 32
 
@@ -119,37 +121,83 @@ class Fuzzer:
         log_strategy_num_seeds(self.strategy, seeds, self.args.SOLVER_CLIS)
 
         while len(seeds) != 0:
-            if self.strategy == "": #TODO
-               pass 
+            if self.strategy == "impbased": 
+                script, glob = self.get_script(seeds)
+
+                if not script:
+                    continue
+
+                typecheck(script, glob)
+                script_cp = copy.deepcopy(script)
+                self.mutator = ImplicationBasedWeakeningStrengthening(
+                        script_cp, glob, self.args
+                )
+
             else:
                 assert False
 
-            log_generation_attempt(self.args)
+            # log_generation_attempt(self.args)
 
             unsuccessful_gens = 0
+
+            self.previous_mutant_results = {}
+            self.previous_mutant = None
+            for solver_cli, baseline_cli in self.args.SOLVER_CLIS:
+                self.previous_mutant_results[solver_cli] = SolverResult(SolverQueryResult.UNKNOWN)
+
             for i in range(self.args.iterations):
-                self.print_stats()
-                mutant, success, skip_seed = self.mutator.mutate()
+                if not self.args.quiet:
+                    self.statistic.printbar()
 
-                # Reason for unsuccessful generation: randomness in the
-                # mutator to more efficiently generate mutants.
+                if self.args.strategy == 'impbased' and i % self.args.walk_length == 0:
+                    logging.info("Restarting from original seed.")
+                    self.generator.script = copy.deepcopy(script)
+                    self.previous_mutant_results = {}
+                    self.previous_mutant = None
+                    for solver_cli, _ in self.args.SOLVER_CLIS:
+                        self.previous_mutant_results[solver_cli] = SolverResult(SolverQueryResult.UNKNOWN)
+
+                self.previous_mutant = copy.deepcopy(self.generator.script)
+                formula, success, rule_name = self.generator.generate()
+                self.current_rule = rule_name
+
                 if not success:
-                    self.statistic.unsuccessful_generations += 1
-                    unsuccessful_gens += 1
-                    continue  # Go to next iteration.
+                    logging.info(f"Generator unsuccessful in iteration {i}/{self.args.iterations}.")
+                    continue
 
-                # Reason for mutator to skip a seed: no random components, i.e.
-                # mutant would be the same for all  iterations and hence just
-                # waste time.
-                if skip_seed:
-                    break  # Continue to next seed.
+                shouldContinue, reason = self.test(formula, i)
 
-                if not self.test(mutant, i + 1):  # Continue to next seed.
+                if not shouldContinue:
+                    logging.info(f"Iteration {self.args.iterations}: {reason}. Stop testing on this seed.")
                     break
 
                 self.statistic.mutants += 1
+                mutant_hash = hashlib.md5(formula.__str__().encode()).hexdigest()
+                logging.info(f"Iteration {i}/{self.args.iterations} generated mutant hash: {mutant_hash}")
 
-            log_finished_generations(self.args, unsuccessful_gens)
+            # for i in range(self.args.iterations):
+                # self.print_stats()
+                # mutant, success, skip_seed = self.mutator.mutate()
+
+                # # Reason for unsuccessful generation: randomness in the
+                # # mutator to more efficiently generate mutants.
+                # if not success:
+                    # self.statistic.unsuccessful_generations += 1
+                    # unsuccessful_gens += 1
+                    # continue  # Go to next iteration.
+
+                # # Reason for mutator to skip a seed: no random components, i.e.
+                # # mutant would be the same for all  iterations and hence just
+                # # waste time.
+                # if skip_seed:
+                    # break  # Continue to next seed.
+
+                # if not self.test(mutant, i + 1):  # Continue to next seed.
+                    # break
+
+                # self.statistic.mutants += 1
+
+            # log_finished_generations(self.args, unsuccessful_gens)
         self.terminate()
 
     def create_testbook(self, script):

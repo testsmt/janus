@@ -478,14 +478,21 @@ def Var(name, type, is_indexed_id=False):
     return Term(name=name, type=type, is_var=True, is_indexed_id=is_indexed_id)
 
 
+
 def Const(name, is_indexed_id=False, type="Unknown"):
     return Term(
         name=name, type=type, is_const=True, is_indexed_id=is_indexed_id
     )
 
+def StringConst(s):
+    return Const(f"\"{s}\"", type="String")
 
-def Expr(op, subterms, is_indexed_id=False):
-    return Term(op=op, subterms=subterms)
+
+def Expr(op, subterms, is_indexed_id=False, type=None):
+    t = Term(op=op, subterms=subterms)
+    if type: 
+        t.type = type
+    return t
 
 
 def UnknownSymbol(name):
@@ -602,6 +609,74 @@ class Term:
                     occs.append(sub)
                 else:
                     sub.find_all(e, occs)
+
+    def has_subterms(self):                                                     
+        return self.subterms and len(self.subterms) > 0                         
+                                                                                
+    def has_n_subterms(self, n):                                                
+        return self.subterms and len(self.subterms) == n                        
+                                                                                
+    def has_at_least_n_subterms(self, n):                                       
+        return self.subterms and len(self.subterms) >= n                        
+                                                                                
+    def has_at_most_n_subterms(self, n):                                        
+        return self.subterms and len(self.subterms) <= n
+
+    def is_type(self, *typs):                                                   
+        typs = list(typs)                                                       
+        # TODO This is a workaround for https://github.com/wintered/formula-weaking-strengthening/issues/2.
+        #                                                                       
+        # Basically, integer literals are always typed 'Int' even in 'Real' expressions,
+        # so we manaully identifiy these two sorts when checking for equality with this method. 
+        if 'Real' in typs:                                                      
+            typs.append('Int')                                                  
+        if 'Int' in typs:                                                       
+            typs.append('Real')                                                 
+        return self.type in typs                                                
+                                                                                
+    def is_operator(self, *ops):                                                
+        return self.op in ops   
+
+    def free_variables(self):
+        """
+        Compute the set of free variable names in this term
+        """
+
+        def merge_results(fv1, fv2):
+            for (var_name, var_nodes) in fv2.items():
+                current = fv1.get(var_name, [])
+                current.extend(var_nodes)
+                fv1[var_name] = current
+
+            return fv1
+
+        result = {}
+
+        if self.is_var:
+            current = result.get(self.name, [])
+            current.append(self)
+            result[self.name] = current
+
+        children = []
+        if self.subterms:
+            children += self.subterms
+        if self.let_terms:
+            children += self.let_terms
+
+        for child in children:
+            fvs = child.free_variables()
+            result = merge_results(fvs, result)
+
+        bound_vars = set()
+        if self.quantifier:
+            bound_vars |= set(self.quantified_vars[0])
+        elif self.var_binders:
+            bound_vars |= set(self.var_binders)
+
+        for var in bound_vars & set(result.keys()):
+            del result[var]
+
+        return result
 
     def substitute(self, e, repl):
         """

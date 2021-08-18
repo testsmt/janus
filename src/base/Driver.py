@@ -106,9 +106,11 @@ def get_seeds():
             exit(ERR_USAGE)
 
     args.PATH_TO_SEEDS = temp_seeds
+   
 
 
-def check_opfuzz():
+
+def check_diff_test():
     if len(args.PATH_TO_SEEDS) < 1:
         print("error: please provide at least one seed", flush=True)
         exit(ERR_USAGE)
@@ -144,8 +146,5 @@ def run_checks(parser, strategy):
     create_log_folder()
     create_scratch_folder()
     get_seeds()
-    if strategy in ["opfuzz", "typefuzz"]:
-        check_opfuzz()
-    else:
-        check_fusion()
+    check_diff_test()
     return args
