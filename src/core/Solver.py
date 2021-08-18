@@ -34,6 +34,7 @@ class SolverQueryResult(Enum):
     SAT = 0  # solver query returns "sat"
     UNSAT = 1  # solver query returns "unsat"
     UNKNOWN = 2  # solver query reports "unknown"
+    NORESULT = 3    # solver query did not return a result because of segfault, timeout etc.
 
 
 def sr2str(sol_res):
