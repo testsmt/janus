@@ -20,6 +20,9 @@ jobs:
         python -m pip install flake8
         python -m pip install --upgrade pip 
         python -m pip install antlr4-python3-runtime==4.9.2  
+        wget https://github.com/Z3Prover/z3/releases/download/z3-4.8.6/z3-4.8.6-x64-ubuntu-16.04.zip
+        unzip z3-4.8.6-x64-ubuntu-16.04.zip
+        echo "./z3-4.8.6-x64-ubuntu-16.04/bin/" >> $GITHUB_PATH
     - name: Spell check 
       run: |
         codespell --skip="Solver.py,SMTLIBv2*,*.g4,*.tokens,*.interp,*.smt2"
