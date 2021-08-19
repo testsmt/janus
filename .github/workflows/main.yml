@@ -25,7 +25,7 @@ jobs:
         echo "./z3-4.8.6-x64-ubuntu-16.04/bin/" >> $GITHUB_PATH
     - name: Spell check 
       run: |
-        codespell --skip="Solver.py,SMTLIBv2*,*.g4,*.tokens,*.interp,*.smt2 z3-4.8.6-x64-ubuntu-16.04" 
+        codespell --skip="Solver.py,SMTLIBv2*,*.g4,*.tokens,*.interp,*.smt2 *z3*" 
     - name: Run Unittests
       run: |
         python -m unittest tests/RunUnitTests.py
