@@ -50,7 +50,7 @@ def is_sound(res1, res2):
 def call_fuzzer(first_config, second_config, fn, opts):
     cmd = (
         python
-        + " bin/toolname"
+        + " bin/toolname "
         + opts
         + '"'
         + first_config
