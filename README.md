@@ -1,2 +1,2 @@
-toolname
+Janus
 ------------
