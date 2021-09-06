@@ -30,7 +30,7 @@ python = sys.executable
 def call_fuzzer(first_config, second_config, fn, opts):
     cmd = (
         python
-        + " bin/opfuzz "
+        + " bin/janus "
         + '"'
         + first_config
         + ";"
@@ -66,12 +66,12 @@ def create_mocksolver_msg(msg, script_fn):
 
 def test_crash_list(msg, fn):
     print("Test", fn)
-    solver = "crash.py"
+    solver = "tmp/crash.py"
     create_mocksolver_msg(msg, solver)
     first_config = os.path.abspath(solver)
     second_config = os.path.abspath(solver)
-    opts = "-i 1 -m 1"
-    crash, cmd = call_fuzzer(first_config, second_config, FN, opts)
+    opts = "-i 1"
+    crash, cmd = call_fuzzer(first_config, second_config, fn, opts)
 
     if crash != 1:
         print("[ERROR] Crash", fn, "cannot be captured.")
@@ -82,7 +82,7 @@ def test_crash_list(msg, fn):
 
 
 if __name__ == "__main__":
-    FN = "mock.smt2"
+    FN = "tmp/mock.smt2"
     create_mocksmt2(FN)
     root_folder = os.path.dirname(os.path.realpath(__file__))
     crash_folder = root_folder + "/crashes"

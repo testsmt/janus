@@ -50,7 +50,7 @@ def is_sound(res1, res2):
 def call_fuzzer(first_config, second_config, fn, opts):
     cmd = (
         python
-        + " bin/toolname "
+        + " bin/janus "
         + opts
         + '"'
         + first_config
@@ -122,7 +122,7 @@ def create_mocksolver_timeout(script_fn):
 
 def test_crash_list():
     print("*** (1) Test crash list")
-    solver = "crash.py"
+    solver = "tmp/crash.py"
     msg = """
     Fatal failure within void CVC4::SmtEngine::checkUnsatCore() at src/smt/smt_engine.cpp:1464
     Internal error detectedSmtEngine::checkUnsatCore(): produced core was satisfiable.
@@ -175,7 +175,7 @@ def test_ignore_list():
 
 def test_segfault():
     print("*** (3) Test segfault")
-    solver = "segfault.py"
+    solver = "tmp/segfault.py"
     create_mocksolver_segfault(solver)
     first_config = os.path.abspath(solver)
     second_config = os.path.abspath(solver)
@@ -193,8 +193,8 @@ def test_segfault():
 
 def test_timeout():
     print("*** (4) Test timeout")
-    timeout_solver = "timeout.py"
-    sat_solver = "sat_solver.py"
+    timeout_solver = "tmp/timeout.py"
+    sat_solver = "tmp/sat_solver.py"
     create_mocksolver_timeout(timeout_solver)
     msg = "sat"
     create_mocksolver_msg(msg, sat_solver)
@@ -247,9 +247,9 @@ def test_unsoundness():
     res2 = random.choices(values, k=k)
     while is_sound(res1, res2):
         res2 = random.choices(values, k=k)
-    solver1 = "solver1.py"
+    solver1 = "tmp/solver1.py"
     create_mocksolver_msg("\n".join(res1), solver1)
-    solver2 = "solver2.py"
+    solver2 = "tmp/solver2.py"
     first_config = os.path.abspath(solver1)
     second_config = os.path.abspath(solver2)
     create_mocksolver_msg("\n".join(res2), solver2)
@@ -279,9 +279,9 @@ def test_soundness():
         if (res1[i] == "sat" or res1[i] == "unsat")\
            and random.choice([True, False]):
             res2[i] = "unknown"
-    solver1 = "solver1.py"
+    solver1 = "tmp/solver1.py"
     create_mocksolver_msg("\n".join(res1), solver1)
-    solver2 = "solver2.py"
+    solver2 = "tmp/solver2.py"
     first_config = os.path.abspath(solver1)
     second_config = os.path.abspath(solver2)
     create_mocksolver_msg("\n".join(res2), solver2)
@@ -369,9 +369,9 @@ ignore_list = [
 
 if __name__ == "__main__":
     # Create empty mock.smt2, set fuzzer opts
-    FN = "mock.smt2"
+    FN = "tmp/mock.smt2"
     create_mocksmt2(FN)
-    OPTS = "-i 1 -m 1 "
+    OPTS = "-i 1 "
     test_crash_list()
     print()
     test_ignore_list()

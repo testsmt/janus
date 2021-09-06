@@ -35,9 +35,9 @@ jobs:
         #python tests/integration/detection/TestCrashes.py
  #   - name: Misc
       #run: |
-        #python tests/integration/misc/FileSizeLimit.py
-        #python tests/integration/misc/NoSolvers.py
-        #python tests/integration/misc/DirectoryMode.py
+        python tests/integration/misc/FileSizeLimit.py
+        python tests/integration/misc/NoSolvers.py
+        python tests/integration/misc/DirectoryMode.py
 #    - name: code style and static analysis with flake 
       #run: |
         #bin/checkstyle.sh

@@ -253,11 +253,12 @@ class Fuzzer:
                 # (2) Match against the duplicate list to avoid reporting duplicate bugs.
                 if not in_duplicate_list(stdout, stderr):
                     self.statistic.crashes += 1
-                    self.report(scratchfile, "crash", solver_cli, stdout, stderr, random_string())
+                    self.report(scratchfile, "crash", solver_cli, stdout, stderr)
                     logging.info("Crash.")
+                    return False, "Crash" # stop testing
                 else:
                     self.statistic.duplicates += 1
-                return False, "Duplicate" # stop testing
+                    return False, "Duplicate" # stop testing
             else:
                 # (3a) Check whether the solver run produces errors, by checking
                 # the ignore list.
@@ -322,7 +323,8 @@ class Fuzzer:
                     # non-erroneous solver runs (opfuzz) for soundness bugs.
                     if not oracle.equals(result):
                         self.statistic.soundness += 1
-                        self.report(scratchfile, "incorrect", solver_cli, self.current_rule, stderr, random_string())
+                        self.report(scratchfile, "incorrect", solver_cli, self.current_rule, stderr)
+
                         if reference:
                             # Produce a diff bug report for soundness bugs in
                             # the opfuzz case
