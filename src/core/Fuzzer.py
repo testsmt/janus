@@ -254,7 +254,7 @@ class Fuzzer:
                 if not in_duplicate_list(stdout, stderr):
                     self.statistic.crashes += 1
                     self.report(scratchfile, "crash", solver_cli, stdout, stderr)
-                    logging.info("Crash.")
+                    logging.info("Detected crash bug.")
                     return False, "Crash" # stop testing
                 else:
                     self.statistic.duplicates += 1
@@ -263,7 +263,7 @@ class Fuzzer:
                 # (3a) Check whether the solver run produces errors, by checking
                 # the ignore list.
                 if in_ignore_list(stdout, stderr):
-                    self.statistic.ignored += 1
+                    self.statistic.invalid_mutants += 1
                     logging.info(f"Invalid mutant: ignore_list({stdout}, {stderr}). sol={solver_cli}.")
                     continue # continue with next solver (4)
 
@@ -271,8 +271,8 @@ class Fuzzer:
                 if exitcode != 0:
                     if exitcode == -signal.SIGSEGV or exitcode == 245: #segfault
                         self.statistic.crashes += 1
-                        self.report(scratchfile, "segfault", solver_cli, stdout, stderr, random_string())
-                        return False, "Segfault" # stop testing
+                        self.report(scratchfile, "segfault", solver_cli, stdout, stderr)
+                        return False, "Detected segfault" # stop testing
 
                     elif exitcode == 137: #timeout
                         self.statistic.timeout += 1
@@ -288,7 +288,7 @@ class Fuzzer:
                 elif not re.search("^unsat$", stdout, flags=re.MULTILINE) and \
                      not re.search("^sat$", stdout, flags=re.MULTILINE) and \
                      not re.search("^unknown$", stdout, flags=re.MULTILINE):
-                    self.statistic.ignored += 1
+                    self.statistic.invalid_mutants += 1
                     logging.info("No result found in solver output.")
                 else:
                     # (5) grep for '^sat$', '^unsat$', and '^unknown$' to produce
@@ -335,7 +335,7 @@ class Fuzzer:
                                              ref_cli, ref_stdout, ref_stderr,
                                              solver_cli, stdout, stderr,
                                              random_string())
-                        return False, "Soundness bug." # stop testing
+                        return False, "Detected soundness bug." # stop testing
         return True, ""
 
     # def test(self, script, iteration):

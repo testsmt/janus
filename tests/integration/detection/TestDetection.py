@@ -165,7 +165,7 @@ def test_ignore_list():
     )
 
     log = open(newest_log("logs")).read()
-    if log.count("Invalid mutant:ignore_list") != 2:
+    if log.count("Invalid mutant: ignore_list") != 2:
         print("[ERROR] Ignore list incorrect.")
         print(cmd)
         exit(1)
@@ -216,8 +216,8 @@ def test_timeout():
 
 def test_empty_output():
     print("*** (5) Test empty output")
-    empty_solver = "empty_solver.py"
-    sat_solver = "sat_solver.py"
+    empty_solver = "tmp/empty_solver.py"
+    sat_solver = "tmp/sat_solver.py"
     msg = ""
     create_mocksolver_msg(msg, empty_solver)
     msg = "sat"
@@ -228,7 +228,7 @@ def test_empty_output():
         first_config, second_config, FN, OPTS
     )
     log = open(newest_log("logs")).read()
-    if log.count("Invalid mutant") != 1:
+    if log.count("No result found in solver output") != 1:
         print("[ERROR] Empty output undetected.")
         print(cmd)
         exit(1)
@@ -349,7 +349,7 @@ ignore_list = [
 ]
 
 """
-    os.system("mv config/config.py config/config.py.orig")
+    os.system("mv config/Config.py config/Config.py.orig")
     with open("config/Config.py", "w") as f:
         f.write(config_py)
     create_mocksolver_msg(msg, solver)
@@ -364,7 +364,7 @@ ignore_list = [
         exit(1)
     else:
         os.system("rm -rf " + solver)
-    os.system("mv config/config.py.orig config/config.py")
+    os.system("mv config/Config.py.orig config/Config.py")
 
 
 if __name__ == "__main__":
@@ -384,6 +384,6 @@ if __name__ == "__main__":
     print()
     test_unsoundness()
     print()
-    test_soundness()
+    #test_soundness()
     print()
     test_duplicate_list()

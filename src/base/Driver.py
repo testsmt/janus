@@ -115,11 +115,6 @@ def check_diff_test():
         print("error: please provide at least one seed", flush=True)
         exit(ERR_USAGE)
 
-    if len(args.SOLVER_CLIS) < 2:
-        print("error: please provide at least two SMT solvers", flush=True)
-        exit(ERR_USAGE)
-
-
 def check_fusion():
     if len(args.PATH_TO_SEEDS) < 2:
         print(
