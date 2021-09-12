@@ -42,4 +42,4 @@ jobs:
     - name: code style and static analysis with flake 
       run: |
         ./bin/black-check.sh
-        ./bin/flake8.sh
+#        ./bin/flake8.sh
