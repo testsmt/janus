@@ -58,7 +58,6 @@ class ImplicationBasedWeakeningStrengthening(Mutator):
         self.script = script
         assert args.oracle in ["sat", "unsat"]
         self.oracle = SAT if args.oracle == "sat" else UNSAT
-        self.step_size = args.step_size
 
         self.op_rep_rules = [
             OperatorReplacement("str.<=", "=", ["String"]),
@@ -544,42 +543,30 @@ class ImplicationBasedWeakeningStrengthening(Mutator):
                     applicableRules += 1
             logging.info(f"Number of applicable rules: {applicableRules}")
 
-        for _ in range(max(1, (self.step_size * 2 // len(self.rules)))):
-            if number_of_modifications_done == self.step_size:
+        random.shuffle(self.rules)
+
+        for rule in self.rules:
+
+            candidates = []
+
+            # Go through all formulas in script and get candidates for 'rule'
+            for formula in formulas:
+                candidates.extend(self.get_candidates(formula, rule, 1))
+
+            # This rule is applicable to some subformula, so we pick it
+            if len(candidates) > 0:
+
+                # Apply the rule to a random candidate
+                to_replace, parity = random.choice(candidates)
+                rule.apply(to_replace, parity * self.oracle)
+                number_of_modifications_done += 1
+                logging.info(f"Chosen rule: {rule.name}")
+                chosen_rule = rule.name
+
+                # We successfully modified the script
+                success = True
                 break
 
-            random.shuffle(self.rules)
-
-            for rule in self.rules:
-
-                candidates = []
-
-                # Go through all formulas in script and get candidates for 'rule'
-                for formula in formulas:
-                    candidates.extend(self.get_candidates(formula, rule, 1))
-
-                # This rule is applicable to some subformula, so we pick it
-                if len(candidates) > 0:
-
-                    # Apply the rule to a random candidate
-                    to_replace, parity = random.choice(candidates)
-                    rule.apply(to_replace, parity * self.oracle)
-                    number_of_modifications_done += 1
-                    logging.info(f"Chosen rule: {rule.name}")
-                    chosen_rule = rule.name
-
-                    # We successfully modified the script
-                    success = True
-
-                    # Keep going until the target number of modifications is hit
-                    if number_of_modifications_done == self.step_size:
-                        break
-
-        """ REMARK:
-        If step_size > 1 then it is still counted as a success if we modify at least one subformula.
-        So step_size is to be understood as a target, but not a guarantee
-        whereas success is a guarantee.
-        """
         if not success:
             logging.info("No rule applies.")
 

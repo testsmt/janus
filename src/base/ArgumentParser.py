@@ -107,13 +107,6 @@ def add_args(parser, rootpath, current_dir):
         type=str,
     )
     parser.add_argument(
-        "-ss",
-        "--step-size",
-        type=int,
-        default=1,
-        help="[impbased] Target number of strengthening/weakening rules to apply in a single mutation step (default: 1)",
-    )
-    parser.add_argument(
         "-wl",
         "--walk-length",
         type=int,
