@@ -39,7 +39,3 @@ jobs:
         python tests/integration/misc/FileSizeLimit.py
         python tests/integration/misc/NoSolvers.py
         python tests/integration/misc/DirectoryMode.py
-    - name: code style and static analysis with flake 
-      run: |
-        ./bin/black-check.sh
-#        ./bin/flake8.sh
