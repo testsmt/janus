@@ -253,16 +253,17 @@ class Fuzzer:
                 # (2) Match against the duplicate list to avoid reporting duplicate bugs.
                 if not in_duplicate_list(stdout, stderr):
                     self.statistic.crashes += 1
-                    self.report(scratchfile, "crash", solver_cli, stdout, stderr, random_string())
-                    logging.info("Crash.")
+                    self.report(scratchfile, "crash", solver_cli, stdout, stderr)
+                    logging.info("Detected crash bug.")
+                    return False, "Crash" # stop testing
                 else:
                     self.statistic.duplicates += 1
-                return False, "Duplicate" # stop testing
+                    return False, "Duplicate" # stop testing
             else:
                 # (3a) Check whether the solver run produces errors, by checking
                 # the ignore list.
                 if in_ignore_list(stdout, stderr):
-                    self.statistic.ignored += 1
+                    self.statistic.invalid_mutants += 1
                     logging.info(f"Invalid mutant: ignore_list({stdout}, {stderr}). sol={solver_cli}.")
                     continue # continue with next solver (4)
 
@@ -270,8 +271,8 @@ class Fuzzer:
                 if exitcode != 0:
                     if exitcode == -signal.SIGSEGV or exitcode == 245: #segfault
                         self.statistic.crashes += 1
-                        self.report(scratchfile, "segfault", solver_cli, stdout, stderr, random_string())
-                        return False, "Segfault" # stop testing
+                        self.report(scratchfile, "segfault", solver_cli, stdout, stderr)
+                        return False, "Detected segfault" # stop testing
 
                     elif exitcode == 137: #timeout
                         self.statistic.timeout += 1
@@ -287,7 +288,7 @@ class Fuzzer:
                 elif not re.search("^unsat$", stdout, flags=re.MULTILINE) and \
                      not re.search("^sat$", stdout, flags=re.MULTILINE) and \
                      not re.search("^unknown$", stdout, flags=re.MULTILINE):
-                    self.statistic.ignored += 1
+                    self.statistic.invalid_mutants += 1
                     logging.info("No result found in solver output.")
                 else:
                     # (5) grep for '^sat$', '^unsat$', and '^unknown$' to produce
@@ -322,7 +323,8 @@ class Fuzzer:
                     # non-erroneous solver runs (opfuzz) for soundness bugs.
                     if not oracle.equals(result):
                         self.statistic.soundness += 1
-                        self.report(scratchfile, "incorrect", solver_cli, self.current_rule, stderr, random_string())
+                        self.report(scratchfile, "incorrect", solver_cli, self.current_rule, stderr)
+
                         if reference:
                             # Produce a diff bug report for soundness bugs in
                             # the opfuzz case
@@ -333,7 +335,7 @@ class Fuzzer:
                                              ref_cli, ref_stdout, ref_stderr,
                                              solver_cli, stdout, stderr,
                                              random_string())
-                        return False, "Soundness bug." # stop testing
+                        return False, "Detected soundness bug." # stop testing
         return True, ""
 
     # def test(self, script, iteration):

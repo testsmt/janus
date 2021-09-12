@@ -95,6 +95,7 @@ def add_args(parser, rootpath, current_dir):
     )
     parser.add_argument(
         "-i", "--iterations",
+        type=int,
         default=100,
     )
     parser.add_argument(
@@ -143,5 +144,5 @@ def build_toolname_parser(rootpath, current_dir, usage):
         add_help=False,
     )
     add_args(parser, current_dir, rootpath)
-    
+
     return parser

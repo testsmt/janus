@@ -50,7 +50,7 @@ def is_sound(res1, res2):
 def call_fuzzer(first_config, second_config, fn, opts):
     cmd = (
         python
-        + " bin/toolname "
+        + " bin/janus "
         + opts
         + '"'
         + first_config
@@ -122,7 +122,7 @@ def create_mocksolver_timeout(script_fn):
 
 def test_crash_list():
     print("*** (1) Test crash list")
-    solver = "crash.py"
+    solver = "tmp/crash.py"
     msg = """
     Fatal failure within void CVC4::SmtEngine::checkUnsatCore() at src/smt/smt_engine.cpp:1464
     Internal error detectedSmtEngine::checkUnsatCore(): produced core was satisfiable.
@@ -165,7 +165,7 @@ def test_ignore_list():
     )
 
     log = open(newest_log("logs")).read()
-    if log.count("Invalid mutant:ignore_list") != 2:
+    if log.count("Invalid mutant: ignore_list") != 2:
         print("[ERROR] Ignore list incorrect.")
         print(cmd)
         exit(1)
@@ -175,7 +175,7 @@ def test_ignore_list():
 
 def test_segfault():
     print("*** (3) Test segfault")
-    solver = "segfault.py"
+    solver = "tmp/segfault.py"
     create_mocksolver_segfault(solver)
     first_config = os.path.abspath(solver)
     second_config = os.path.abspath(solver)
@@ -193,8 +193,8 @@ def test_segfault():
 
 def test_timeout():
     print("*** (4) Test timeout")
-    timeout_solver = "timeout.py"
-    sat_solver = "sat_solver.py"
+    timeout_solver = "tmp/timeout.py"
+    sat_solver = "tmp/sat_solver.py"
     create_mocksolver_timeout(timeout_solver)
     msg = "sat"
     create_mocksolver_msg(msg, sat_solver)
@@ -216,8 +216,8 @@ def test_timeout():
 
 def test_empty_output():
     print("*** (5) Test empty output")
-    empty_solver = "empty_solver.py"
-    sat_solver = "sat_solver.py"
+    empty_solver = "tmp/empty_solver.py"
+    sat_solver = "tmp/sat_solver.py"
     msg = ""
     create_mocksolver_msg(msg, empty_solver)
     msg = "sat"
@@ -228,7 +228,7 @@ def test_empty_output():
         first_config, second_config, FN, OPTS
     )
     log = open(newest_log("logs")).read()
-    if log.count("Invalid mutant") != 1:
+    if log.count("No result found in solver output") != 1:
         print("[ERROR] Empty output undetected.")
         print(cmd)
         exit(1)
@@ -247,9 +247,9 @@ def test_unsoundness():
     res2 = random.choices(values, k=k)
     while is_sound(res1, res2):
         res2 = random.choices(values, k=k)
-    solver1 = "solver1.py"
+    solver1 = "tmp/solver1.py"
     create_mocksolver_msg("\n".join(res1), solver1)
-    solver2 = "solver2.py"
+    solver2 = "tmp/solver2.py"
     first_config = os.path.abspath(solver1)
     second_config = os.path.abspath(solver2)
     create_mocksolver_msg("\n".join(res2), solver2)
@@ -279,9 +279,9 @@ def test_soundness():
         if (res1[i] == "sat" or res1[i] == "unsat")\
            and random.choice([True, False]):
             res2[i] = "unknown"
-    solver1 = "solver1.py"
+    solver1 = "tmp/solver1.py"
     create_mocksolver_msg("\n".join(res1), solver1)
-    solver2 = "solver2.py"
+    solver2 = "tmp/solver2.py"
     first_config = os.path.abspath(solver1)
     second_config = os.path.abspath(solver2)
     create_mocksolver_msg("\n".join(res2), solver2)
@@ -349,7 +349,7 @@ ignore_list = [
 ]
 
 """
-    os.system("mv config/config.py config/config.py.orig")
+    os.system("mv config/Config.py config/Config.py.orig")
     with open("config/Config.py", "w") as f:
         f.write(config_py)
     create_mocksolver_msg(msg, solver)
@@ -364,14 +364,15 @@ ignore_list = [
         exit(1)
     else:
         os.system("rm -rf " + solver)
-    os.system("mv config/config.py.orig config/config.py")
+    os.system("mv config/Config.py.orig config/Config.py")
 
 
 if __name__ == "__main__":
+    os.system("mkdir -p tmp/")
     # Create empty mock.smt2, set fuzzer opts
-    FN = "mock.smt2"
+    FN = "tmp/mock.smt2"
     create_mocksmt2(FN)
-    OPTS = "-i 1 -m 1 "
+    OPTS = "-i 1 "
     test_crash_list()
     print()
     test_ignore_list()
@@ -384,6 +385,6 @@ if __name__ == "__main__":
     print()
     test_unsoundness()
     print()
-    test_soundness()
+    #test_soundness()
     print()
     test_duplicate_list()

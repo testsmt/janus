@@ -29,15 +29,15 @@ jobs:
     - name: Run Unittests
       run: |
         python -m unittest tests/RunUnitTests.py
-#    - name: Detection logic 
-      #run: |
-        #python tests/integration/detection/TestDetection.py
-        #python tests/integration/detection/TestCrashes.py
- #   - name: Misc
-      #run: |
-        #python tests/integration/misc/FileSizeLimit.py
-        #python tests/integration/misc/NoSolvers.py
-        #python tests/integration/misc/DirectoryMode.py
+    - name: Detection logic 
+      run: |
+        python tests/integration/detection/TestDetection.py
+        python tests/integration/detection/TestCrashes.py
+    - name: Misc
+      run: |
+        python tests/integration/misc/FileSizeLimit.py
+        python tests/integration/misc/NoSolvers.py
+        python tests/integration/misc/DirectoryMode.py
 #    - name: code style and static analysis with flake 
-      #run: |
-        #bin/checkstyle.sh
+#      run: |
+#        bin/checkstyle.sh

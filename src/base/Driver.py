@@ -40,9 +40,6 @@ def check_solver_clis():
         if len(solvers) == 0:
             print("error: no solver specified", flush=True)
             exit(ERR_USAGE)
-        args.SOLVER_CLIS = solvers
-    else:
-        args.SOLVER_CLIS = args.SOLVER_CLIS.split(";") + solvers
 
 
 def check_timeout():
@@ -115,11 +112,6 @@ def check_diff_test():
         print("error: please provide at least one seed", flush=True)
         exit(ERR_USAGE)
 
-    if len(args.SOLVER_CLIS) < 2:
-        print("error: please provide at least two SMT solvers", flush=True)
-        exit(ERR_USAGE)
-
-
 def check_fusion():
     if len(args.PATH_TO_SEEDS) < 2:
         print(
@@ -139,7 +131,7 @@ def run_checks(parser, strategy):
     if not args.PATH_TO_SEEDS:
         parser.error("no seed-file/seed folder specified")
 
-    # check_solver_clis()
+    check_solver_clis()
     args.SOLVER_CLIS = map(lambda sol: sol.split("|"), args.SOLVER_CLIS.split(";"))
     args.SOLVER_CLIS = [sol + [None]*(2 - len(sol)) for sol in args.SOLVER_CLIS]
     check_timeout()

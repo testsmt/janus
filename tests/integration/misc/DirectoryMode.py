@@ -23,18 +23,19 @@
 import os
 import sys
 import subprocess
+from pathlib import Path
 
 python = sys.executable
 
 TIME_LIMIT = 180
 
 
-def run_opfuzz(first_config, second_config, directory, opts, timeout_limit):
+def run_janus(first_config, second_config, directory, opts, timeout_limit):
     timeout = "timeout --signal=INT " + str(timeout_limit) + " "
     cmd = (
         timeout
         + python
-        + " bin/opfuzz "
+        + " bin/janus "
         + '"'
         + first_config
         + ";"
@@ -52,19 +53,19 @@ def run_opfuzz(first_config, second_config, directory, opts, timeout_limit):
 
 
 def get_cvc4():
-    cvc4_link = "https://github.com/CVC4/CVC4/releases/download/1.8/\
-cvc4-1.8-x86_64-linux-opt"
-    os.system("wget " + cvc4_link)
-    subprocess.getoutput("chmod +x cvc4-1.8-x86_64-linux-opt")
-    return os.path.abspath("cvc4-1.8-x86_64-linux-opt")
+    if not Path("tmp/cvc4-1.8").is_file():
+        cvc4_link = "https://github.com/CVC4/CVC4/releases/download/1.8/cvc4-1.8-x86_64-linux-opt"
+        os.system("wget --output-document=tmp/cvc4-1.8 " + cvc4_link)
+        subprocess.getoutput("chmod +x tmp/cvc4-1.8")
+    return os.path.abspath("tmp/cvc4-1.8")
 
 
 def get_z3():
-    z3_link = "https://github.com/Z3Prover/z3/releases/download/z3-4.8.10/\
-z3-4.8.10-x64-ubuntu-18.04.zip"
-    os.system("wget " + z3_link)
-    os.system("unzip z3-4.8.10-x64-ubuntu-18.04.zip")
-    return os.path.abspath("z3-4.8.10-x64-ubuntu-18.04/bin/z3")
+    if not Path("tmp/z3-4.8.10/bin/z3").is_file():
+        z3_link = "https://github.com/Z3Prover/z3/releases/download/z3-4.8.10/z3-4.8.10-x64-ubuntu-18.04.zip"
+        os.system("wget " + z3_link)
+        os.system("unzip z3-4.8.10-x64-ubuntu-18.04.zip -d tmp/")
+    return os.path.abspath("tmp/z3-4.8.10-x64-ubuntu-18.04/bin/z3")
 
 
 def cleanup():
@@ -72,16 +73,18 @@ def cleanup():
     subprocess.getoutput("rm -rf z3*")
 
 
-cleanup()
+#cleanup()
+os.system('mkdir -p tmp/')
 cvc4 = get_cvc4()
 z3 = get_z3()
 first_config = z3 + " model_validate=true"
 second_config = cvc4 + " --check-models --produce-models --incremental -q"
 mock_benchmarks = str(os.path.dirname(os.path.realpath(__file__)))\
     + "/mock_benchmarks"
-out, cmd = run_opfuzz(
-    first_config, second_config, mock_benchmarks, "-m 1", TIME_LIMIT)
+out, cmd = run_janus(
+    first_config, second_config, mock_benchmarks, "", TIME_LIMIT)
 if "3 seeds processed, 1 valid, 2 invalid" not in out:
     print("An error occurred.", flush=True)
     print("cmd", cmd)
+    print("out", out)
     exit(1)
