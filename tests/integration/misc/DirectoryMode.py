@@ -55,7 +55,7 @@ def run_janus(first_config, second_config, directory, opts, timeout_limit):
 def get_cvc4():
     if not Path("tmp/cvc4-1.8").is_file():
         cvc4_link = "https://github.com/CVC4/CVC4/releases/download/1.8/cvc4-1.8-x86_64-linux-opt"
-        os.system("wget --output-file=tmp/cvc4-1.8 " + cvc4_link)
+        os.system("wget --output-document=tmp/cvc4-1.8 " + cvc4_link)
         subprocess.getoutput("chmod +x tmp/cvc4-1.8")
     return os.path.abspath("tmp/cvc4-1.8")
 
@@ -64,8 +64,8 @@ def get_z3():
     if not Path("tmp/z3-4.8.10/bin/z3").is_file():
         z3_link = "https://github.com/Z3Prover/z3/releases/download/z3-4.8.10/z3-4.8.10-x64-ubuntu-18.04.zip"
         os.system("wget " + z3_link)
-        os.system("unzip z3-4.8.10-x64-ubuntu-18.04.zip -d tmp/z3-4.8.10")
-    return os.path.abspath("tmp/z3-4.8.10/bin/z3")
+        os.system("unzip z3-4.8.10-x64-ubuntu-18.04.zip -d tmp/")
+    return os.path.abspath("tmp/z3-4.8.10-x64-ubuntu-18.04/bin/z3")
 
 
 def cleanup():
