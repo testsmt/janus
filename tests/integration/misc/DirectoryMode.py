@@ -74,6 +74,7 @@ def cleanup():
 
 
 #cleanup()
+os.system('mkdir -p tmp/')
 cvc4 = get_cvc4()
 z3 = get_z3()
 first_config = z3 + " model_validate=true"
