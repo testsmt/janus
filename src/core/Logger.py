@@ -41,8 +41,7 @@ def init_logging(strategy, quiet_mode, name, args):
     log_fn = args.logfolder + "/" + fn
     logging.basicConfig(
         handlers=[
-            RotatingFileHandler(filename=log_fn,
-                                maxBytes=1024 * 1024, backupCount=5)
+            RotatingFileHandler(filename=log_fn, maxBytes=1024 * 1024, backupCount=5)
         ],
         format="%(asctime)s %(message)s",
         datefmt="[%Y/%m/%d %I:%M:%S %p]",
@@ -74,9 +73,7 @@ def log_strategy_num_seeds(strategy, seeds, targets):
 
 
 def log_generation_attempt(args):
-    logging.debug(
-        "Attempting to generate " + str(args.iterations) + " mutants"
-    )
+    logging.debug("Attempting to generate " + str(args.iterations) + " mutants")
 
 
 def log_finished_generations(args, unsuccessful):
@@ -105,8 +102,7 @@ def log_duplicate_trigger():
 
 def log_segfault_trigger(args, path, i):
     logging.debug(
-        str(i) + "/" + str(args.iterations)
-        + " Segfault! Stop testing on this seed."
+        str(i) + "/" + str(args.iterations) + " Segfault! Stop testing on this seed."
     )
     logging.info(BOLD + WARNING + "Detected segfault: " + path + ENDC)
 

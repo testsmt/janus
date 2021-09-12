@@ -187,9 +187,7 @@ class DeclareConst(Commands):
         self.sort = sort
 
     def __str__(self):
-        return "(declare-const "\
-               + self.symbol + " "\
-               + self.sort.__str__() + ")"
+        return "(declare-const " + self.symbol + " " + self.sort.__str__() + ")"
 
 
 class DeclareFun:
@@ -478,19 +476,17 @@ def Var(name, type, is_indexed_id=False):
     return Term(name=name, type=type, is_var=True, is_indexed_id=is_indexed_id)
 
 
-
 def Const(name, is_indexed_id=False, type="Unknown"):
-    return Term(
-        name=name, type=type, is_const=True, is_indexed_id=is_indexed_id
-    )
+    return Term(name=name, type=type, is_const=True, is_indexed_id=is_indexed_id)
+
 
 def StringConst(s):
-    return Const(f"\"{s}\"", type="String")
+    return Const(f'"{s}"', type="String")
 
 
 def Expr(op, subterms, is_indexed_id=False, type=None):
     t = Term(op=op, subterms=subterms)
-    if type: 
+    if type:
         t.type = type
     return t
 
@@ -501,18 +497,12 @@ def UnknownSymbol(name):
 
 def Quantifier(quantifier, quantified_vars, subterms):
     return Term(
-        quantifier=quantifier,
-        quantified_vars=quantified_vars,
-        subterms=subterms
+        quantifier=quantifier, quantified_vars=quantified_vars, subterms=subterms
     )
 
 
 def LetBinding(var_binders, let_terms, subterms):
-    return Term(
-        var_binders=var_binders,
-        let_terms=let_terms,
-        subterms=subterms
-    )
+    return Term(var_binders=var_binders, let_terms=let_terms, subterms=subterms)
 
 
 def LabeledTerm(label, subterms):
@@ -610,32 +600,32 @@ class Term:
                 else:
                     sub.find_all(e, occs)
 
-    def has_subterms(self):                                                     
-        return self.subterms and len(self.subterms) > 0                         
-                                                                                
-    def has_n_subterms(self, n):                                                
-        return self.subterms and len(self.subterms) == n                        
-                                                                                
-    def has_at_least_n_subterms(self, n):                                       
-        return self.subterms and len(self.subterms) >= n                        
-                                                                                
-    def has_at_most_n_subterms(self, n):                                        
+    def has_subterms(self):
+        return self.subterms and len(self.subterms) > 0
+
+    def has_n_subterms(self, n):
+        return self.subterms and len(self.subterms) == n
+
+    def has_at_least_n_subterms(self, n):
+        return self.subterms and len(self.subterms) >= n
+
+    def has_at_most_n_subterms(self, n):
         return self.subterms and len(self.subterms) <= n
 
-    def is_type(self, *typs):                                                   
-        typs = list(typs)                                                       
+    def is_type(self, *typs):
+        typs = list(typs)
         # TODO This is a workaround for https://github.com/wintered/formula-weaking-strengthening/issues/2.
-        #                                                                       
+        #
         # Basically, integer literals are always typed 'Int' even in 'Real' expressions,
-        # so we manually identifiy these two sorts when checking for equality with this method. 
-        if 'Real' in typs:                                                      
-            typs.append('Int')                                                  
-        if 'Int' in typs:                                                       
-            typs.append('Real')                                                 
-        return self.type in typs                                                
-                                                                                
-    def is_operator(self, *ops):                                                
-        return self.op in ops   
+        # so we manually identifiy these two sorts when checking for equality with this method.
+        if "Real" in typs:
+            typs.append("Int")
+        if "Int" in typs:
+            typs.append("Real")
+        return self.type in typs
+
+    def is_operator(self, *ops):
+        return self.op in ops
 
     def free_variables(self):
         """
@@ -781,9 +771,7 @@ class Term:
 
         elif self.label:
             subs_str = self.__get_subterm_str__()
-            return "(! "\
-                   + subs_str + " "\
-                   + self.label[0] + " " + self.label[1] + ")"
+            return "(! " + subs_str + " " + self.label[0] + " " + self.label[1] + ")"
         else:
             subs_str = self.__get_subterm_str__()
             return "(" + self.op.__str__() + " " + subs_str + ")"

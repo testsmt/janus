@@ -22,17 +22,14 @@
 
 from src.base.Version import VERSION
 
-header = (
-    "toolname -- some description [version: "
-    + VERSION + "]"
-)
+header = "toolname -- some description [version: " + VERSION + "]"
 
 usage = """ toolname [options] solver_clis seed_file   [optionally, more seed files]
        toolname [options] solver_clis seed_folder [optionally, more seed folders]
        solver_clis := "solver_cli1;solver_cli2;...;solver_clik"
 """
 
-short_description = """TODO: short description"""   # noqa: E501
+short_description = """TODO: short description"""  # noqa: E501
 
 long_description = """
 TODO: long description

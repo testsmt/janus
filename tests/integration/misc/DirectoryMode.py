@@ -73,16 +73,14 @@ def cleanup():
     subprocess.getoutput("rm -rf z3*")
 
 
-#cleanup()
-os.system('mkdir -p tmp/')
+# cleanup()
+os.system("mkdir -p tmp/")
 cvc4 = get_cvc4()
 z3 = get_z3()
 first_config = z3 + " model_validate=true"
 second_config = cvc4 + " --check-models --produce-models --incremental -q"
-mock_benchmarks = str(os.path.dirname(os.path.realpath(__file__)))\
-    + "/mock_benchmarks"
-out, cmd = run_janus(
-    first_config, second_config, mock_benchmarks, "", TIME_LIMIT)
+mock_benchmarks = str(os.path.dirname(os.path.realpath(__file__))) + "/mock_benchmarks"
+out, cmd = run_janus(first_config, second_config, mock_benchmarks, "", TIME_LIMIT)
 if "3 seeds processed, 1 valid, 2 invalid" not in out:
     print("An error occurred.", flush=True)
     print("cmd", cmd)

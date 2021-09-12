@@ -52,7 +52,7 @@ def create_mocksolver_msg(msg, script_fn):
     os.system("chmod +x " + script_fn)
 
 
-os.system('mkdir -p tmp')
+os.system("mkdir -p tmp")
 solver = "tmp/solver.py"
 msg = "sat"
 create_mocksolver_msg(msg, solver)

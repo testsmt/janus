@@ -40,8 +40,7 @@ sys.setrecursionlimit(100000)
 
 class ErrorListener(ErrorListener):
     def syntaxError(self, recognizer, offendingSymbol, line, column, msg, e):
-        logging.debug("Parser error on line %d column %d."
-                      % (line, column), flush=True)
+        logging.debug("Parser error on line %d column %d." % (line, column), flush=True)
 
 
 def prepare_seed(formula):

@@ -62,7 +62,9 @@ from src.core.FuzzerUtil import (
     in_ignore_list,
     init_oracle,
 )
-from src.mutators.ImplicationBasedWeakeningStrengthening.ImplicationBasedWeakeningStrengthening import ImplicationBasedWeakeningStrengthening
+from src.mutators.ImplicationBasedWeakeningStrengthening.ImplicationBasedWeakeningStrengthening import (
+    ImplicationBasedWeakeningStrengthening,
+)
 
 
 MAX_TIMEOUTS = 32
@@ -115,14 +117,14 @@ class Fuzzer:
     def run(self):
         """
         Realizes the main fuzzing loop. The procedure fetches seeds at random
-        from the seed corpus, instantiates a mutator and then generates 
+        from the seed corpus, instantiates a mutator and then generates
         `self.args.iterations` many iterations per seed.
         """
         seeds = get_seeds(self.args, self.strategy)
         log_strategy_num_seeds(self.strategy, seeds, self.args.SOLVER_CLIS)
 
         while len(seeds) != 0:
-            if self.strategy == "impbased": 
+            if self.strategy == "impbased":
                 script, glob = self.get_script(seeds)
 
                 if not script:
@@ -131,7 +133,7 @@ class Fuzzer:
                 typecheck(script, glob)
                 script_cp = copy.deepcopy(script)
                 self.mutator = ImplicationBasedWeakeningStrengthening(
-                        script_cp, glob, self.args
+                    script_cp, glob, self.args
                 )
 
             else:
@@ -144,59 +146,69 @@ class Fuzzer:
             self.previous_mutant_results = {}
             self.previous_mutant = None
             for solver_cli, baseline_cli in self.args.SOLVER_CLIS:
-                self.previous_mutant_results[solver_cli] = SolverResult(SolverQueryResult.UNKNOWN)
+                self.previous_mutant_results[solver_cli] = SolverResult(
+                    SolverQueryResult.UNKNOWN
+                )
 
             for i in range(self.args.iterations):
                 self.print_stats()
 
-                if self.strategy == 'impbased' and i % self.args.walk_length == 0:
+                if self.strategy == "impbased" and i % self.args.walk_length == 0:
                     logging.info("Restarting from original seed.")
 
                     self.mutator.script = copy.deepcopy(script)
                     self.previous_mutant_results = {}
                     self.previous_mutant = None
                     for solver_cli, _ in self.args.SOLVER_CLIS:
-                        self.previous_mutant_results[solver_cli] = SolverResult(SolverQueryResult.UNKNOWN)
+                        self.previous_mutant_results[solver_cli] = SolverResult(
+                            SolverQueryResult.UNKNOWN
+                        )
 
                 self.previous_mutant = copy.deepcopy(self.mutator.script)
                 formula, success, rule_name = self.mutator.mutate()
                 self.current_rule = rule_name
 
                 if not success:
-                    logging.info(f"Mutator unsuccessful in iteration {i}/{self.args.iterations}.")
+                    logging.info(
+                        f"Mutator unsuccessful in iteration {i}/{self.args.iterations}."
+                    )
                     continue
 
                 shouldContinue, reason = self.test(formula, i)
 
                 if not shouldContinue:
-                    logging.info(f"Iteration {self.args.iterations}: {reason}. Stop testing on this seed.")
+                    logging.info(
+                        f"Iteration {self.args.iterations}: {reason}. Stop testing on this seed."
+                    )
                     break
 
                 self.statistic.mutants += 1
                 mutant_hash = hashlib.md5(formula.__str__().encode()).hexdigest()
-                logging.info(f"Iteration {i}/{self.args.iterations} generated mutant hash: {mutant_hash}")
+                logging.info(
+                    f"Iteration {i}/{self.args.iterations} generated mutant hash: {mutant_hash}"
+                )
 
             # for i in range(self.args.iterations):
-                # self.print_stats()
-                # mutant, success, skip_seed = self.mutator.mutate()
+            # self.print_stats()
+            # mutant, success, skip_seed = self.mutator.mutate()
 
-                # # Reason for unsuccessful generation: randomness in the
-                # # mutator to more efficiently generate mutants.
-                # if not success:
-                    # self.statistic.unsuccessful_generations += 1
-                    # unsuccessful_gens += 1
-                    # continue  # Go to next iteration.
+            # # Reason for unsuccessful generation: randomness in the
+            # # mutator to more efficiently generate mutants.
+            # if not success:
+            # self.statistic.unsuccessful_generations += 1
+            # unsuccessful_gens += 1
+            # continue  # Go to next iteration.
 
-                # # Reason for mutator to skip a seed: no random components, i.e.
-                # # mutant would be the same for all  iterations and hence just
-                # # waste time.
-                # if skip_seed:
-                    # break  # Continue to next seed.
+            # # Reason for mutator to skip a seed: no random components, i.e.
+            # # mutant would be the same for all  iterations and hence just
+            # # waste time.
+            # if skip_seed:
+            # break  # Continue to next seed.
 
-                # if not self.test(mutant, i + 1):  # Continue to next seed.
-                    # break
+            # if not self.test(mutant, i + 1):  # Continue to next seed.
+            # break
 
-                # self.statistic.mutants += 1
+            # self.statistic.mutants += 1
 
             # log_finished_generations(self.args, unsuccessful_gens)
         self.terminate()
@@ -244,7 +256,9 @@ class Fuzzer:
             logging.info(f"Solver finished.")
             if baseline_solver is not None:
                 logging.info(f"Running solver: {baseline_cli}")
-                baseline_solver_result = baseline_solver.solve_to_result(scratchfile, self.args.timeout)
+                baseline_solver_result = baseline_solver.solve_to_result(
+                    scratchfile, self.args.timeout
+                )
                 logging.info(f"Solver finished.")
 
             # (1) Detect crashes from a solver run including invalid models.
@@ -255,39 +269,45 @@ class Fuzzer:
                     self.statistic.crashes += 1
                     self.report(scratchfile, "crash", solver_cli, stdout, stderr)
                     logging.info("Detected crash bug.")
-                    return False, "Crash" # stop testing
+                    return False, "Crash"  # stop testing
                 else:
                     self.statistic.duplicates += 1
-                    return False, "Duplicate" # stop testing
+                    return False, "Duplicate"  # stop testing
             else:
                 # (3a) Check whether the solver run produces errors, by checking
                 # the ignore list.
                 if in_ignore_list(stdout, stderr):
                     self.statistic.invalid_mutants += 1
-                    logging.info(f"Invalid mutant: ignore_list({stdout}, {stderr}). sol={solver_cli}.")
-                    continue # continue with next solver (4)
+                    logging.info(
+                        f"Invalid mutant: ignore_list({stdout}, {stderr}). sol={solver_cli}."
+                    )
+                    continue  # continue with next solver (4)
 
                 # (3b) Check whether the exit code is nonzero.
                 if exitcode != 0:
-                    if exitcode == -signal.SIGSEGV or exitcode == 245: #segfault
+                    if exitcode == -signal.SIGSEGV or exitcode == 245:  # segfault
                         self.statistic.crashes += 1
                         self.report(scratchfile, "segfault", solver_cli, stdout, stderr)
-                        return False, "Detected segfault" # stop testing
+                        return False, "Detected segfault"  # stop testing
 
-                    elif exitcode == 137: #timeout
+                    elif exitcode == 137:  # timeout
                         self.statistic.timeout += 1
-                        logging.info("Solver timeout occurred. sol="+str(solver_cli)+".")
-                        continue # continue with next solver (4)
+                        logging.info(
+                            "Solver timeout occurred. sol=" + str(solver_cli) + "."
+                        )
+                        continue  # continue with next solver (4)
 
-                    elif exitcode == 127: #command not found
+                    elif exitcode == 127:  # command not found
                         print("\nPlease check your solver command-line interfaces.")
                         logging.info("Command not found.")
-                        continue # continue with next solver (4)
-                    self.statistic.ignored+=1
+                        continue  # continue with next solver (4)
+                    self.statistic.ignored += 1
                 # (3c) if there is no '^sat$' or '^unsat$' in the output
-                elif not re.search("^unsat$", stdout, flags=re.MULTILINE) and \
-                     not re.search("^sat$", stdout, flags=re.MULTILINE) and \
-                     not re.search("^unknown$", stdout, flags=re.MULTILINE):
+                elif (
+                    not re.search("^unsat$", stdout, flags=re.MULTILINE)
+                    and not re.search("^sat$", stdout, flags=re.MULTILINE)
+                    and not re.search("^unknown$", stdout, flags=re.MULTILINE)
+                ):
                     self.statistic.invalid_mutants += 1
                     logging.info("No result found in solver output.")
                 else:
@@ -296,25 +316,48 @@ class Fuzzer:
                     # benchmarks) for comparing with the oracle (semantic fusion) or
                     # with other non-erroneous solver runs (opfuzz) for soundness bugs
                     result = grep_result(stdout)
-                    logging.info(f"Expected '{oracle}', solver returned '{result}'. ISBUG={not oracle.equals(result)}")
+                    logging.info(
+                        f"Expected '{oracle}', solver returned '{result}'. ISBUG={not oracle.equals(result)}"
+                    )
 
                     if oracle.equals(SolverQueryResult.UNKNOWN):
                         oracle = result
-                        logging.info("Oracle was 'unknown'. sol="+str(solver_cli)+".")
+                        logging.info(
+                            "Oracle was 'unknown'. sol=" + str(solver_cli) + "."
+                        )
                         reference = (solver_cli, scratchfile, stdout, stderr)
 
                     # Check for type 1 incompleteness (regression)
                     if baseline_solver and result.equals(SolverQueryResult.UNKNOWN):
                         if baseline_solver_result.is_solved():
                             self.statistic.incompleteness_type_1 += 1
-                            self.report(scratchfile, "incompleteness-type-1", solver_cli, stdout, stderr, random_string())
+                            self.report(
+                                scratchfile,
+                                "incompleteness-type-1",
+                                solver_cli,
+                                stdout,
+                                stderr,
+                                random_string(),
+                            )
                             return (False, "Incompleteness type 1 found.")
 
                     # Check for type 2 incompleteness (unsupported implication)
                     previous_result = self.previous_mutant_results[solver_cli]
-                    if result.equals(SolverQueryResult.UNKNOWN) and len(previous_result.lst) == 1 and previous_result.lst[0].is_solved():
+                    if (
+                        result.equals(SolverQueryResult.UNKNOWN)
+                        and len(previous_result.lst) == 1
+                        and previous_result.lst[0].is_solved()
+                    ):
                         self.statistic.incompleteness_type_2 += 1
-                        self.report(scratchfile, "incompleteness-type-2", solver_cli, self.current_rule, stderr, random_string(), self.previous_mutant)
+                        self.report(
+                            scratchfile,
+                            "incompleteness-type-2",
+                            solver_cli,
+                            self.current_rule,
+                            stderr,
+                            random_string(),
+                            self.previous_mutant,
+                        )
                         return (False, "Incompleteness type 2 found.")
 
                     self.previous_mutant_results[solver_cli] = result
@@ -323,7 +366,13 @@ class Fuzzer:
                     # non-erroneous solver runs (opfuzz) for soundness bugs.
                     if not oracle.equals(result):
                         self.statistic.soundness += 1
-                        self.report(scratchfile, "incorrect", solver_cli, self.current_rule, stderr)
+                        self.report(
+                            scratchfile,
+                            "incorrect",
+                            solver_cli,
+                            self.current_rule,
+                            stderr,
+                        )
 
                         if reference:
                             # Produce a diff bug report for soundness bugs in
@@ -331,168 +380,175 @@ class Fuzzer:
                             ref_cli = reference[0]
                             ref_stdout = reference[1]
                             ref_stderr = reference[2]
-                            self.report_diff(scratchfile, "incorrect",
-                                             ref_cli, ref_stdout, ref_stderr,
-                                             solver_cli, stdout, stderr,
-                                             random_string())
-                        return False, "Detected soundness bug." # stop testing
+                            self.report_diff(
+                                scratchfile,
+                                "incorrect",
+                                ref_cli,
+                                ref_stdout,
+                                ref_stderr,
+                                solver_cli,
+                                stdout,
+                                stderr,
+                                random_string(),
+                            )
+                        return False, "Detected soundness bug."  # stop testing
         return True, ""
 
     # def test(self, script, iteration):
-        # """
-        # Tests the solvers on the provided script. Checks for crashes, segfaults
-        # invalid models and soundness issues, ignores duplicates. Stores bug
-        # triggers in ./bugs along with .output files for bug reproduction.
+    # """
+    # Tests the solvers on the provided script. Checks for crashes, segfaults
+    # invalid models and soundness issues, ignores duplicates. Stores bug
+    # triggers in ./bugs along with .output files for bug reproduction.
 
-        # script:     parsed SMT-LIB script
-        # iteration:  number of current iteration (used for logging)
-        # :returns:   False if the testing on the script should be stopped
-                    # and True otherwise.
-        # """
+    # script:     parsed SMT-LIB script
+    # iteration:  number of current iteration (used for logging)
+    # :returns:   False if the testing on the script should be stopped
+    # and True otherwise.
+    # """
 
-        # # For differential testing (opfuzz), the oracle is set to "unknown" and
-        # # gets overwritten by the result of the first solver call. For
-        # # metamorphic testing (yinyang) the oracle is pre-set by the cmd line.
-        # if self.strategy in ["opfuzz", "typefuzz"]:
-            # oracle = SolverResult(SolverQueryResult.UNKNOWN)
-        # else:
-            # oracle = init_oracle(self.args)
+    # # For differential testing (opfuzz), the oracle is set to "unknown" and
+    # # gets overwritten by the result of the first solver call. For
+    # # metamorphic testing (yinyang) the oracle is pre-set by the cmd line.
+    # if self.strategy in ["opfuzz", "typefuzz"]:
+    # oracle = SolverResult(SolverQueryResult.UNKNOWN)
+    # else:
+    # oracle = init_oracle(self.args)
 
-        # testbook = self.create_testbook(script)
-        # reference = None
+    # testbook = self.create_testbook(script)
+    # reference = None
 
-        # for testitem in testbook:
-            # solver_cli, baseline_cli, scratchfile = testitem[0], testitem[1]
+    # for testitem in testbook:
+    # solver_cli, baseline_cli, scratchfile = testitem[0], testitem[1]
 
-            # if baseline_cli is not None:
-                # baseline_solver = Solver(baseline_cli)
-            # else:
-                # baseline_solver = None
+    # if baseline_cli is not None:
+    # baseline_solver = Solver(baseline_cli)
+    # else:
+    # baseline_solver = None
 
-            # print("solver_cli", solver_cli)
-            # solver = Solver(solver_cli)
-            # self.statistic.solver_calls += 1
-            # stdout, stderr, exitcode = solver.solve(
-                # scratchfile, self.args.timeout
-            # )
+    # print("solver_cli", solver_cli)
+    # solver = Solver(solver_cli)
+    # self.statistic.solver_calls += 1
+    # stdout, stderr, exitcode = solver.solve(
+    # scratchfile, self.args.timeout
+    # )
 
-            # if self.max_timeouts_reached():
-                # return False
+    # if self.max_timeouts_reached():
+    # return False
 
-            # # Match stdout and stderr against the crash list
-            # # (see config/Config.py:27) which contains various crash messages
-            # # such as assertion errors, check failure, invalid models, etc.
-            # if in_crash_list(stdout, stderr):
+    # # Match stdout and stderr against the crash list
+    # # (see config/Config.py:27) which contains various crash messages
+    # # such as assertion errors, check failure, invalid models, etc.
+    # if in_crash_list(stdout, stderr):
 
-                # # Match stdout and stderr against the duplicate list
-                # # (see config/Config.py:51) to prevent catching duplicate bug
-                # # triggers.
-                # if not in_duplicate_list(stdout, stderr):
-                    # self.statistic.effective_calls += 1
-                    # self.statistic.crashes += 1
-                    # path = self.report(
-                        # scratchfile, "crash", solver_cli, stdout, stderr
-                    # )
-                    # log_crash_trigger(path)
-                # else:
-                    # self.statistic.duplicates += 1
-                    # log_duplicate_trigger()
-                # return False  # Stop testing.
-            # else:
+    # # Match stdout and stderr against the duplicate list
+    # # (see config/Config.py:51) to prevent catching duplicate bug
+    # # triggers.
+    # if not in_duplicate_list(stdout, stderr):
+    # self.statistic.effective_calls += 1
+    # self.statistic.crashes += 1
+    # path = self.report(
+    # scratchfile, "crash", solver_cli, stdout, stderr
+    # )
+    # log_crash_trigger(path)
+    # else:
+    # self.statistic.duplicates += 1
+    # log_duplicate_trigger()
+    # return False  # Stop testing.
+    # else:
 
-                # # Check whether the solver call produced errors, e.g, related
-                # # to its parser, options, type-checker etc., by matching stdout
-                # # and stderr against the ignore list (see config/Config.py:54).
-                # if in_ignore_list(stdout, stderr):
-                    # log_ignore_list_mutant(solver_cli)
-                    # self.statistic.invalid_mutants += 1
-                    # continue  # Continue to the next solver.
+    # # Check whether the solver call produced errors, e.g, related
+    # # to its parser, options, type-checker etc., by matching stdout
+    # # and stderr against the ignore list (see config/Config.py:54).
+    # if in_ignore_list(stdout, stderr):
+    # log_ignore_list_mutant(solver_cli)
+    # self.statistic.invalid_mutants += 1
+    # continue  # Continue to the next solver.
 
-                # if exitcode != 0:
+    # if exitcode != 0:
 
-                    # # Check whether the solver crashed with a segfault.
-                    # if exitcode == -signal.SIGSEGV or exitcode == 245:
-                        # self.statistic.effective_calls += 1
-                        # self.statistic.crashes += 1
-                        # path = self.report(
-                            # scratchfile, "segfault", solver_cli, stdout, stderr
-                        # )
-                        # log_segfault_trigger(self.args, path, iteration)
-                        # return False  # Stop testing.
+    # # Check whether the solver crashed with a segfault.
+    # if exitcode == -signal.SIGSEGV or exitcode == 245:
+    # self.statistic.effective_calls += 1
+    # self.statistic.crashes += 1
+    # path = self.report(
+    # scratchfile, "segfault", solver_cli, stdout, stderr
+    # )
+    # log_segfault_trigger(self.args, path, iteration)
+    # return False  # Stop testing.
 
-                    # # Check whether the solver timed out.
-                    # elif exitcode == 137:
-                        # self.statistic.timeout += 1
-                        # self.timeout_of_current_seed += 1
-                        # log_solver_timeout(self.args, solver_cli, iteration)
-                        # continue  # Continue to the next solver.
+    # # Check whether the solver timed out.
+    # elif exitcode == 137:
+    # self.statistic.timeout += 1
+    # self.timeout_of_current_seed += 1
+    # log_solver_timeout(self.args, solver_cli, iteration)
+    # continue  # Continue to the next solver.
 
-                    # # Check whether a "command not found" error occurred.
-                    # elif exitcode == 127:
-                        # continue  # Continue to the next solver.
+    # # Check whether a "command not found" error occurred.
+    # elif exitcode == 127:
+    # continue  # Continue to the next solver.
 
-                # # Check if the stdout contains a valid solver query result,
-                # # i.e., contains lines with 'sat', 'unsat' or 'unknown'.
-                # elif (
-                    # not re.search("^unsat$", stdout, flags=re.MULTILINE)
-                    # and not re.search("^sat$", stdout, flags=re.MULTILINE)
-                    # and not re.search("^unknown$", stdout, flags=re.MULTILINE)
-                # ):
-                    # self.statistic.invalid_mutants += 1
-                    # log_invalid_mutant(self.args, iteration)
-                    # continue  # Continue to the next solver.
+    # # Check if the stdout contains a valid solver query result,
+    # # i.e., contains lines with 'sat', 'unsat' or 'unknown'.
+    # elif (
+    # not re.search("^unsat$", stdout, flags=re.MULTILINE)
+    # and not re.search("^sat$", stdout, flags=re.MULTILINE)
+    # and not re.search("^unknown$", stdout, flags=re.MULTILINE)
+    # ):
+    # self.statistic.invalid_mutants += 1
+    # log_invalid_mutant(self.args, iteration)
+    # continue  # Continue to the next solver.
 
-                # else:
+    # else:
 
-                    # # Grep for '^sat$', '^unsat$', and '^unknown$' to produce
-                    # # the output (including '^unknown$' to also deal with
-                    # # incremental benchmarks) for comparing with the oracle
-                    # # (yinyang) or with other non-erroneous solver runs
-                    # # (opfuzz) for soundness bugs.
-                    # self.statistic.effective_calls += 1
-                    # result = grep_result(stdout)
-                    # if oracle.equals(SolverQueryResult.UNKNOWN):
+    # # Grep for '^sat$', '^unsat$', and '^unknown$' to produce
+    # # the output (including '^unknown$' to also deal with
+    # # incremental benchmarks) for comparing with the oracle
+    # # (yinyang) or with other non-erroneous solver runs
+    # # (opfuzz) for soundness bugs.
+    # self.statistic.effective_calls += 1
+    # result = grep_result(stdout)
+    # if oracle.equals(SolverQueryResult.UNKNOWN):
 
-                        # # For differential testing (opfuzz), the first solver
-                        # # is set as the reference, its result to be the oracle.
-                        # oracle = result
-                        # reference = (solver_cli, scratchfile, stdout, stderr)
+    # # For differential testing (opfuzz), the first solver
+    # # is set as the reference, its result to be the oracle.
+    # oracle = result
+    # reference = (solver_cli, scratchfile, stdout, stderr)
 
-                    # # Comparing with the oracle (yinyang) or with other
-                    # # non-erroneous solver runs (opfuzz) for soundness bugs.
-                    # if not oracle.equals(result):
-                        # self.statistic.soundness += 1
+    # # Comparing with the oracle (yinyang) or with other
+    # # non-erroneous solver runs (opfuzz) for soundness bugs.
+    # if not oracle.equals(result):
+    # self.statistic.soundness += 1
 
-                        # if reference:
+    # if reference:
 
-                            # # Produce a bug report for soundness bugs
-                            # # containing a diff with the reference solver
-                            # # (opfuzz).
-                            # ref_cli = reference[0]
-                            # ref_stdout = reference[1]
-                            # ref_stderr = reference[2]
-                            # path = self.report_diff(
-                                # scratchfile,
-                                # "incorrect",
-                                # ref_cli,
-                                # ref_stdout,
-                                # ref_stderr,
-                                # solver_cli,
-                                # stdout,
-                                # stderr,
-                            # )
-                        # else:
+    # # Produce a bug report for soundness bugs
+    # # containing a diff with the reference solver
+    # # (opfuzz).
+    # ref_cli = reference[0]
+    # ref_stdout = reference[1]
+    # ref_stderr = reference[2]
+    # path = self.report_diff(
+    # scratchfile,
+    # "incorrect",
+    # ref_cli,
+    # ref_stdout,
+    # ref_stderr,
+    # solver_cli,
+    # stdout,
+    # stderr,
+    # )
+    # else:
 
-                            # # Produce a bug report if the query result differs
-                            # # from the pre-set oracle (yinyang).
-                            # path = self.report(
-                                # scratchfile, "incorrect", solver_cli,
-                                # stdout, stderr
-                            # )
+    # # Produce a bug report if the query result differs
+    # # from the pre-set oracle (yinyang).
+    # path = self.report(
+    # scratchfile, "incorrect", solver_cli,
+    # stdout, stderr
+    # )
 
-                        # log_soundness_trigger(self.args, iteration, path)
-                        # return False  # Stop testing.
-        # return True  # Continue to next seed.
+    # log_soundness_trigger(self.args, iteration, path)
+    # return False  # Stop testing.
+    # return True  # Continue to next seed.
 
     def report(self, scratchfile, bugtype, cli, stdout, stderr):
         plain_cli = plain(cli)
@@ -573,8 +629,7 @@ class Fuzzer:
         return report
 
     def print_stats(self):
-        if not self.first_status_bar_printed\
-           and time.time() - self.old_time >= 1:
+        if not self.first_status_bar_printed and time.time() - self.old_time >= 1:
             self.statistic.printbar(self.start_time)
             self.old_time = time.time()
             self.first_status_bar_printed = True

@@ -29,13 +29,8 @@ def raise_runtime_error(trace, argv, e):
     print("Runtime error at %s:%s" % (fn, lineno), flush=True)
     print("msg: " + str(e), flush=True)
     print(
-        "cmd: "
-        + " ".join(argv[:-2])
-        + " "
-        + '"' + argv[-2]
-        + '"' + " " + argv[-1],
+        "cmd: " + " ".join(argv[:-2]) + " " + '"' + argv[-2] + '"' + " " + argv[-1],
         flush=True,
     )
     print("version: yinyang " + VERSION + " " + COMMIT, flush=True)
-    print("Please file an issue: https://github.com/testsmt/yinyang/issues",
-          flush=True)
+    print("Please file an issue: https://github.com/testsmt/yinyang/issues", flush=True)

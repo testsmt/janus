@@ -18,6 +18,7 @@ jobs:
       run: |
         pip install codespell
         python -m pip install flake8
+        python -m pip install black
         python -m pip install --upgrade pip 
         python -m pip install antlr4-python3-runtime==4.9.2  
         wget https://github.com/Z3Prover/z3/releases/download/z3-4.8.10/z3-4.8.10-x64-ubuntu-18.04.zip
@@ -38,6 +39,3 @@ jobs:
         python tests/integration/misc/FileSizeLimit.py
         python tests/integration/misc/NoSolvers.py
         python tests/integration/misc/DirectoryMode.py
-#    - name: code style and static analysis with flake 
-#      run: |
-#        bin/checkstyle.sh
