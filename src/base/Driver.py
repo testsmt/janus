@@ -44,15 +44,13 @@ def check_solver_clis():
 
 def check_timeout():
     if args.timeout <= 0:
-        print("error: timeout should not be a negative number or zero",
-              flush=True)
+        print("error: timeout should not be a negative number or zero", flush=True)
         exit(ERR_USAGE)
 
 
 def check_iterations():
     if args.iterations <= 0:
-        print("error: iterations should not be a negative number zero",
-              flush=True)
+        print("error: iterations should not be a negative number zero", flush=True)
         exit(ERR_USAGE)
 
 
@@ -87,8 +85,7 @@ def get_seeds():
     temp_seeds = []
     for path in args.PATH_TO_SEEDS:
         if not os.path.exists(path):
-            print('error: folder/file "%s" does not exist' % (path),
-                  flush=True)
+            print('error: folder/file "%s" does not exist' % (path), flush=True)
             exit(ERR_USAGE)
         if os.path.isfile(path):
             temp_seeds.append(path)
@@ -103,14 +100,13 @@ def get_seeds():
             exit(ERR_USAGE)
 
     args.PATH_TO_SEEDS = temp_seeds
-   
-
 
 
 def check_diff_test():
     if len(args.PATH_TO_SEEDS) < 1:
         print("error: please provide at least one seed", flush=True)
         exit(ERR_USAGE)
+
 
 def check_fusion():
     if len(args.PATH_TO_SEEDS) < 2:
@@ -133,7 +129,7 @@ def run_checks(parser, strategy):
 
     check_solver_clis()
     args.SOLVER_CLIS = map(lambda sol: sol.split("|"), args.SOLVER_CLIS.split(";"))
-    args.SOLVER_CLIS = [sol + [None]*(2 - len(sol)) for sol in args.SOLVER_CLIS]
+    args.SOLVER_CLIS = [sol + [None] * (2 - len(sol)) for sol in args.SOLVER_CLIS]
     check_timeout()
     check_iterations()
     create_bug_folder()

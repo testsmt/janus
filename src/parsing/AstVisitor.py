@@ -88,8 +88,7 @@ class AstVisitor(SMTLIBv2Visitor):
                 output_sort = self.sorts[output_sort]
             self.global_vars[identifier] = sort2type(output_sort)
         else:
-            self.global_vars[identifier] =\
-                sort2type(input_sorts + " " + output_sort)
+            self.global_vars[identifier] = sort2type(input_sorts + " " + output_sort)
 
     def handleCommand(self, ctx: SMTLIBv2Parser.CommandContext):
         if ctx.cmd_assert():
@@ -118,8 +117,7 @@ class AstVisitor(SMTLIBv2Visitor):
             var = self.visitSymbol(ctx.symbol()[0])
             self.global_vars[var] = self.visitSort(ctx.sort()[0])
             decl = DeclareConst(
-                self.visitSymbol(ctx.symbol()[0]),
-                self.visitSort(ctx.sort()[0])
+                self.visitSymbol(ctx.symbol()[0]), self.visitSort(ctx.sort()[0])
             )
             return decl
         if ctx.cmd_declareFun():
@@ -134,8 +132,7 @@ class AstVisitor(SMTLIBv2Visitor):
 
         if ctx.cmd_define():
             return Define(
-                self.visitSymbol(ctx.symbol()[0]),
-                self.visitTerm(ctx.term()[0], {})
+                self.visitSymbol(ctx.symbol()[0]), self.visitTerm(ctx.term()[0], {})
             )
 
         if ctx.cmd_defineConst():
@@ -152,8 +149,7 @@ class AstVisitor(SMTLIBv2Visitor):
             identifier = self.visitSymbol(ctx.function_def().symbol())
             sorted_vars = " ".join(sorted_vars)
             self.add_to_globals(
-                identifier, sorted_vars,
-                self.visitSort(ctx.function_def().sort())
+                identifier, sorted_vars, self.visitSort(ctx.function_def().sort())
             )
             return DefineFun(
                 identifier,
@@ -225,8 +221,7 @@ class AstVisitor(SMTLIBv2Visitor):
             sorted_vars.append(self.visitSorted_var(var))
 
         return FunDecl(
-            self.visitSymbol(
-                ctx.symbol()), sorted_vars, self.visitSort(ctx.sort())
+            self.visitSymbol(ctx.symbol()), sorted_vars, self.visitSort(ctx.sort())
         )
 
     def visitSorted_var(self, ctx: SMTLIBv2Parser.Sorted_varContext):
@@ -263,11 +258,7 @@ class AstVisitor(SMTLIBv2Visitor):
     def visitAttribute(self, ctx: SMTLIBv2Parser.AttributeContext):
         return (ctx.keyword().getText(), ctx.attribute_value().getText())
 
-    def handle_quantifier(
-            self,
-            ctx: SMTLIBv2Parser.TermContext,
-            quant,
-            local_vars):
+    def handle_quantifier(self, ctx: SMTLIBv2Parser.TermContext, quant, local_vars):
 
         subterms = []
         qvars = []
@@ -298,7 +289,7 @@ class AstVisitor(SMTLIBv2Visitor):
         if ctx.ParOpen():
             X, n = (
                 ctx.numeral()[0].getText(),
-                ctx.numeral()[1].getText().encode("utf-8").decode("utf-8")
+                ctx.numeral()[1].getText().encode("utf-8").decode("utf-8"),
             )
             return "(_ bv" + X + " " + n + ")", BITVECTOR_TYPE(int(n))
         if ctx.numeral():
@@ -470,10 +461,7 @@ class AstVisitor(SMTLIBv2Visitor):
         if ctx.quotedSymbol():
             return self.visitQuotedSymbol(ctx.quotedSymbol())
 
-    def visitIdentifier(
-            self,
-            ctx: SMTLIBv2Parser.IdentifierContext,
-            local_vars):
+    def visitIdentifier(self, ctx: SMTLIBv2Parser.IdentifierContext, local_vars):
         """
         identifier
         : symbol
@@ -494,11 +482,9 @@ class AstVisitor(SMTLIBv2Visitor):
                 index += " " + ind.getText()
             name = "(_ " + symbol + " " + index + ")"
             if name in local_vars:
-                return Var(name=name, type=local_vars[name],
-                           is_indexed_id=True)
+                return Var(name=name, type=local_vars[name], is_indexed_id=True)
             elif name in self.global_vars:
-                return Var(name=name, type=self.global_vars[name],
-                           is_indexed_id=True)
+                return Var(name=name, type=self.global_vars[name], is_indexed_id=True)
             else:
                 return name
 

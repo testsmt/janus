@@ -41,12 +41,10 @@ crash_list = [
     "failed to verify",
     "ERROR: AddressSanitizer:",
     "invalid expression",
-    "Aborted"
+    "Aborted",
 ]
 
-duplicate_list = [
-    "src/smt/smt_mock.cpp:1489"
-]
+duplicate_list = ["src/smt/smt_mock.cpp:1489"]
 
 ignore_list = [
     "(error ",

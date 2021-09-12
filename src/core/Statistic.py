@@ -44,15 +44,13 @@ class Statistic:
         total_time = time.time() - start_time
         if self.solver_calls != 0:
             eff = round(
-                (float(self.effective_calls) / float(self.solver_calls)) * 100,
-                1
+                (float(self.effective_calls) / float(self.solver_calls)) * 100, 1
             )
             eff_str = str(eff) + "%"
         else:
             eff_str = "NaN"
 
-        solver_calls_per_sec = round(
-            float(self.solver_calls) / float(total_time), 1)
+        solver_calls_per_sec = round(float(self.solver_calls) / float(total_time), 1)
 
         mutants_per_sec = round(float(self.mutants) / float(total_time), 1)
         mutants_per_sec_str = str(mutants_per_sec)

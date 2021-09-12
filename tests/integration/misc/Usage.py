@@ -28,8 +28,7 @@ import sys
 import subprocess
 
 import_path = os.path.dirname(
-    os.path.dirname(
-        os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 )
 sys.path.append(import_path)
 

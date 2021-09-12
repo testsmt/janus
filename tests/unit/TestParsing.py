@@ -33,8 +33,7 @@ sys.path.append("../../")
 class ParsingTestCase(unittest.TestCase):
     def test_issue9(self):
         formula, _ = parse_file("tests/res/issue7.smt2")
-        self.assertTrue(
-            "\x0a" in formula.__str__() and "\n" in formula.__str__())
+        self.assertTrue("\x0a" in formula.__str__() and "\n" in formula.__str__())
 
     def test_issue18(self):
         formula, _ = parse_file("tests/res/issue18.smt2", silent=False)

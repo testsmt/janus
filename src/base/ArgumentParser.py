@@ -94,7 +94,8 @@ def add_args(parser, rootpath, current_dir):
         default=100000,
     )
     parser.add_argument(
-        "-i", "--iterations",
+        "-i",
+        "--iterations",
         type=int,
         default=100,
     )
@@ -106,13 +107,15 @@ def add_args(parser, rootpath, current_dir):
         type=str,
     )
     parser.add_argument(
-        "-ss", "--step-size",
+        "-ss",
+        "--step-size",
         type=int,
         default=1,
         help="[impbased] Target number of strengthening/weakening rules to apply in a single mutation step (default: 1)",
     )
     parser.add_argument(
-        "-wl", "--walk-length",
+        "-wl",
+        "--walk-length",
         type=int,
         default=1,
         help="[impbased] Number of incremental steps before restarting on the seed (default: 1). \
@@ -120,7 +123,8 @@ def add_args(parser, rootpath, current_dir):
         '--walk-length' equal to '--iterations'.",
     )
     parser.add_argument(
-        "-cr", "--completeness-regressions",
+        "-cr",
+        "--completeness-regressions",
         type=str,
         default="",
         help="[impbased] Pass a single solver command to search for completeness regressions against. (default: 1).\
@@ -130,7 +134,8 @@ def add_args(parser, rootpath, current_dir):
               to be tested.",
     )
     parser.add_argument(
-        "-rs", "--rule-set",
+        "-rs",
+        "--rule-set",
         default=None,
         help="Restrict rule set to a fixed subset (default: None)",
     )

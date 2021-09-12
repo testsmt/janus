@@ -27,26 +27,132 @@ sys.setrecursionlimit(100000)
 from src.parsing.Types import (
     sort2type,
     # Types
-    BOOLEAN_TYPE, REAL_TYPE, INTEGER_TYPE, ROUNDINGMODE_TYPE, STRING_TYPE,
-    REGEXP_TYPE, UNKNOWN, ARRAY_TYPE, BITVECTOR_TYPE, FP_TYPE,
+    BOOLEAN_TYPE,
+    REAL_TYPE,
+    INTEGER_TYPE,
+    ROUNDINGMODE_TYPE,
+    STRING_TYPE,
+    REGEXP_TYPE,
+    UNKNOWN,
+    ARRAY_TYPE,
+    BITVECTOR_TYPE,
+    FP_TYPE,
     # Operator lists
-    CORE_OPS, NUMERICAL_OPS, REAL_OPS, INT_OPS, REAL_INTS, STRING_OPS,
-    ARRAY_OPS, BV_OPS, FP_OPS,
+    CORE_OPS,
+    NUMERICAL_OPS,
+    REAL_OPS,
+    INT_OPS,
+    REAL_INTS,
+    STRING_OPS,
+    ARRAY_OPS,
+    BV_OPS,
+    FP_OPS,
     # Operators
-    NOT, AND, OR, XOR, IMPLIES, ITE, EQ, UNARY_MINUS, MINUS, PLUS, MULTIPLY,
-    GT, GTE, LT, LTE, DIV, MOD, ABS, REAL_DIV, TO_REAL, TO_INT, IS_INT,
-    CONCAT, STRLEN, LEXORD, REFLEX_CLOS, STR_PREFIXOF, STR_SUFFIXOF,
-    STR_CONTAINS, RE_NONE, RE_ALL, RE_ALLCHAR, STR_IN_RE, RE_COMP, RE_KLENE,
-    RE_OPT, RE_PLUS, RE_DIFF, RE_CONCAT, RE_UNION, RE_INTER, STR_AT,
-    STR_SUBSTR, STR_INDEXOF, STR_REPLACE, STR_REPLACE_ALL, STR_REPLACE_RE,
-    STR_REPLACE_RE_ALL, STR_TO_CODE, STR_TO_INT, STR_TO_RE, STR_FROM_CODE,
-    STR_FROM_INT, STR_IS_DIGIT, RE_RANGE, SELECT, STORE, BV_CONCAT, BVNOT,
-    BVNEG, BVAND, BVOR, BVXOR, BVADD, BVSUB, BVMUL, BVUDIV, BVUREM, BVSHL,
-    BV_EXTRACT, BV_ZERO_EXTEND, BV_SIGN_EXTEND, BVLSHR, BVASHR, BVSDIV, BVULT,
-    BVULE, BVSLT, BVSGT, FP_ABS, FP_NEG, FP_ADD, FP_SUB, FP_MUL, FP_DIV,
-    FP_SQRT, FP_REM, FP_ROUND_TO_INTEGRAL, FP_NORMAL, FP_ISSUBNORMAL,
-    FP_IS_ZERO, FP_ISINFINITE, FP_ISNAN, FP_ISNEGATIVE, FP_ISPOSITIVE, FP_LEQ,
-    FP_LT, FP_GEQ, FP_GT, FP_EQ, FP_MIN, FP_MAX, FP_FMA, TO_FP_UNSIGNED, TO_FP
+    NOT,
+    AND,
+    OR,
+    XOR,
+    IMPLIES,
+    ITE,
+    EQ,
+    UNARY_MINUS,
+    MINUS,
+    PLUS,
+    MULTIPLY,
+    GT,
+    GTE,
+    LT,
+    LTE,
+    DIV,
+    MOD,
+    ABS,
+    REAL_DIV,
+    TO_REAL,
+    TO_INT,
+    IS_INT,
+    CONCAT,
+    STRLEN,
+    LEXORD,
+    REFLEX_CLOS,
+    STR_PREFIXOF,
+    STR_SUFFIXOF,
+    STR_CONTAINS,
+    RE_NONE,
+    RE_ALL,
+    RE_ALLCHAR,
+    STR_IN_RE,
+    RE_COMP,
+    RE_KLENE,
+    RE_OPT,
+    RE_PLUS,
+    RE_DIFF,
+    RE_CONCAT,
+    RE_UNION,
+    RE_INTER,
+    STR_AT,
+    STR_SUBSTR,
+    STR_INDEXOF,
+    STR_REPLACE,
+    STR_REPLACE_ALL,
+    STR_REPLACE_RE,
+    STR_REPLACE_RE_ALL,
+    STR_TO_CODE,
+    STR_TO_INT,
+    STR_TO_RE,
+    STR_FROM_CODE,
+    STR_FROM_INT,
+    STR_IS_DIGIT,
+    RE_RANGE,
+    SELECT,
+    STORE,
+    BV_CONCAT,
+    BVNOT,
+    BVNEG,
+    BVAND,
+    BVOR,
+    BVXOR,
+    BVADD,
+    BVSUB,
+    BVMUL,
+    BVUDIV,
+    BVUREM,
+    BVSHL,
+    BV_EXTRACT,
+    BV_ZERO_EXTEND,
+    BV_SIGN_EXTEND,
+    BVLSHR,
+    BVASHR,
+    BVSDIV,
+    BVULT,
+    BVULE,
+    BVSLT,
+    BVSGT,
+    FP_ABS,
+    FP_NEG,
+    FP_ADD,
+    FP_SUB,
+    FP_MUL,
+    FP_DIV,
+    FP_SQRT,
+    FP_REM,
+    FP_ROUND_TO_INTEGRAL,
+    FP_NORMAL,
+    FP_ISSUBNORMAL,
+    FP_IS_ZERO,
+    FP_ISINFINITE,
+    FP_ISNAN,
+    FP_ISNEGATIVE,
+    FP_ISPOSITIVE,
+    FP_LEQ,
+    FP_LT,
+    FP_GEQ,
+    FP_GT,
+    FP_EQ,
+    FP_MIN,
+    FP_MAX,
+    FP_FMA,
+    TO_FP_UNSIGNED,
+    TO_FP,
 )
 
 from src.parsing.Ast import Assert
@@ -72,8 +178,7 @@ class Context:
 
 class TypeCheckError(Exception):
     def __init__(self, expr, subterm=None, expected=None, actual=None):
-        self.message = "Ill-typed expression \nterm: \t \t"\
-                       + expr.__str__() + "\n"
+        self.message = "Ill-typed expression \nterm: \t \t" + expr.__str__() + "\n"
         if isinstance(subterm, list):
             s = "[" + subterm[0].__str__() + " "
             for term in subterm[1:]:
@@ -108,9 +213,7 @@ def typecheck_unary_minus(expr, ctxt=[]):
     """
     typ = typecheck_expr(expr.subterms[0], ctxt)
     if typ not in [INTEGER_TYPE, REAL_TYPE]:
-        raise TypeCheckError(
-            expr, expr.subterms[0], [INTEGER_TYPE, REAL_TYPE], typ
-        )
+        raise TypeCheckError(expr, expr.subterms[0], [INTEGER_TYPE, REAL_TYPE], typ)
     return typecheck_expr(expr.subterms[0], ctxt)
 
 
@@ -125,9 +228,7 @@ def typecheck_nary_numeral_ret(expr, ctxt=[]):
     """
     typ = typecheck_expr(expr.subterms[0], ctxt)
     if typ not in [INTEGER_TYPE, REAL_TYPE]:
-        raise TypeCheckError(
-            expr, expr.subterms[0], [INTEGER_TYPE, REAL_TYPE], typ
-        )
+        raise TypeCheckError(expr, expr.subterms[0], [INTEGER_TYPE, REAL_TYPE], typ)
     for term in expr.subterms[1:]:
         t = typecheck_expr(term, ctxt)
         if t not in [INTEGER_TYPE, REAL_TYPE]:
@@ -209,9 +310,7 @@ def typecheck_comp_ops(expr, ctxt):
     """
     typ = typecheck_expr(expr.subterms[0], ctxt)
     if typ not in [INTEGER_TYPE, REAL_TYPE]:
-        raise TypeCheckError(
-            expr, expr.subterms[0], [INTEGER_TYPE, REAL_TYPE], typ
-        )
+        raise TypeCheckError(expr, expr.subterms[0], [INTEGER_TYPE, REAL_TYPE], typ)
 
     for term in expr.subterms[1:]:
         t = typecheck_expr(term, ctxt)
@@ -465,9 +564,7 @@ def typecheck_string_ops(expr, ctxt):
         return typecheck_string_concat(expr, ctxt)
     if expr.op == STRLEN:
         return typecheck_strlen(expr, ctxt)
-    if expr.op in [
-            LEXORD, REFLEX_CLOS, STR_PREFIXOF, STR_SUFFIXOF, STR_CONTAINS
-    ]:
+    if expr.op in [LEXORD, REFLEX_CLOS, STR_PREFIXOF, STR_SUFFIXOF, STR_CONTAINS]:
         return typecheck_nary_string_rt_bool(expr, ctxt)
     if expr.op in [RE_NONE, RE_ALL, RE_ALLCHAR]:
         return typecheck_regex_consts(expr, ctxt)
@@ -545,8 +642,7 @@ def typecheck_bv_concat(expr, ctxt):
     arg1, arg2 = expr.subterms[0], expr.subterms[1]
     t1 = typecheck_expr(expr.subterms[0], ctxt)
     t2 = typecheck_expr(expr.subterms[1], ctxt)
-    if not isinstance(t1, BITVECTOR_TYPE) or\
-       not isinstance(t2, BITVECTOR_TYPE):
+    if not isinstance(t1, BITVECTOR_TYPE) or not isinstance(t2, BITVECTOR_TYPE):
         raise TypeCheckError(
             expr, [arg1, arg2], [BITVECTOR_TYPE, BITVECTOR_TYPE], [t1, t2]
         )
@@ -572,8 +668,7 @@ def typecheck_bv_binary(expr, ctxt):
     arg1, _ = expr.subterms[0], expr.subterms[1]
     t1 = typecheck_expr(expr.subterms[0], ctxt)
     t2 = typecheck_expr(expr.subterms[1], ctxt)
-    if not isinstance(t1, BITVECTOR_TYPE) or\
-       not isinstance(t2, BITVECTOR_TYPE):
+    if not isinstance(t1, BITVECTOR_TYPE) or not isinstance(t2, BITVECTOR_TYPE):
         expected = "[" + str(BITVECTOR_TYPE) + "," + str(BITVECTOR_TYPE) + "]"
         actual = "[" + str(t1) + "," + str(t2) + "]"
         raise TypeCheckError(expr, arg1, expected, actual)
@@ -590,8 +685,7 @@ def typecheck_binary_bool_rt(expr, ctxt):
     t1 = typecheck_expr(expr.subterms[0], ctxt)
     t2 = typecheck_expr(expr.subterms[1], ctxt)
 
-    if not isinstance(arg1, BITVECTOR_TYPE) or\
-       not isinstance(arg2, BITVECTOR_TYPE):
+    if not isinstance(arg1, BITVECTOR_TYPE) or not isinstance(arg2, BITVECTOR_TYPE):
         raise TypeCheckError(
             expr, [arg1, arg2], [BITVECTOR_TYPE, BITVECTOR_TYPE], [t1, t2]
         )
@@ -701,9 +795,9 @@ def typecheck_fp_comparison(expr, ctxt):
 
 def typecheck_fp_minmax(expr, ctxt):
     """
-    (fp.min (_ FloatingPoint eb sb) (_ FloatingPoint eb sb) (_ FloatingPoint eb sb)) 
+    (fp.min (_ FloatingPoint eb sb) (_ FloatingPoint eb sb) (_ FloatingPoint eb sb))
     (fp.max (_ FloatingPoint eb sb) (_ FloatingPoint eb sb) (_ FloatingPoint eb sb))
-    """ # noqa E501
+    """  # noqa E501
     arg1 = expr.subterms[0]
     arg2 = expr.subterms[1]
     if not isinstance(typecheck_expr(arg1, ctxt), FP_TYPE) or not isinstance(
@@ -716,7 +810,7 @@ def typecheck_fp_minmax(expr, ctxt):
 def typecheck_fp_fma(expr, ctxt):
     """
     (fp.fma RoundingMode (_ FloatingPoint eb sb) (_ FloatingPoint eb sb) (_ FloatingPoint eb sb) (_ FloatingPoint eb sb))
-    """ # noqa E501
+    """  # noqa E501
     arg1 = expr.subterms[0]
     arg2 = expr.subterms[1]
     arg3 = expr.subterms[2]
@@ -831,8 +925,7 @@ def typecheck_to_fp_unsigned(expr, ctxt):
     eb, sb = int(expr.op.split(" ")[2]), int(expr.op.split(" ")[3].strip(")"))
     t1 = typecheck_expr(expr.subterms[0], ctxt)
     t2 = typecheck_expr(expr.subterms[1], ctxt)
-    if not isinstance(t1, ROUNDINGMODE_TYPE)\
-       or isinstance(t2, BITVECTOR_TYPE):
+    if not isinstance(t1, ROUNDINGMODE_TYPE) or isinstance(t2, BITVECTOR_TYPE):
         raise TypeCheckError(expr)
     return FP_TYPE(eb, sb)
 
@@ -858,8 +951,7 @@ def typecheck_to_fp(expr, ctxt):
             not (isinstance(t1, ROUNDINGMODE_TYPE) and isinstance(t2, FP_TYPE))
             or not (isinstance(t1, ROUNDINGMODE_TYPE) and t2 == REAL_TYPE)
             or not (
-                isinstance(t1, ROUNDINGMODE_TYPE) and
-                isinstance(t2, BITVECTOR_TYPE)
+                isinstance(t1, ROUNDINGMODE_TYPE) and isinstance(t2, BITVECTOR_TYPE)
             )
         ):
             raise TypeCheckError(expr)

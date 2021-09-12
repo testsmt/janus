@@ -34,7 +34,9 @@ class SolverQueryResult(Enum):
     SAT = 0  # solver query returns "sat"
     UNSAT = 1  # solver query returns "unsat"
     UNKNOWN = 2  # solver query reports "unknown"
-    NORESULT = 3    # solver query did not return a result because of segfault, timeout etc.
+    NORESULT = (
+        3  # solver query did not return a result because of segfault, timeout etc.
+    )
 
 
 def sr2str(sol_res):
@@ -128,14 +130,14 @@ class Solver:
 
         return stdout, stderr, returncode
 
-    def solve_to_result(self, file, timeout, debug=False):                         
-        stdout, stderr, exitcode = self.solve(file, timeout, debug)                
-        if exitcode == 0 and stderr.strip() == "":                                 
-            if stdout.strip() == "sat":                                            
-                return SolverQueryResult.SAT                                       
-            if stdout.strip() == "unsat":                                          
-                return SolverQueryResult.UNSAT                                     
-            if stdout.strip() == "unknown":                                        
-                return SolverQueryResult.UNKNOWN                                   
-                                                                                   
+    def solve_to_result(self, file, timeout, debug=False):
+        stdout, stderr, exitcode = self.solve(file, timeout, debug)
+        if exitcode == 0 and stderr.strip() == "":
+            if stdout.strip() == "sat":
+                return SolverQueryResult.SAT
+            if stdout.strip() == "unsat":
+                return SolverQueryResult.UNSAT
+            if stdout.strip() == "unknown":
+                return SolverQueryResult.UNKNOWN
+
         return SolverQueryResult.NORESULT

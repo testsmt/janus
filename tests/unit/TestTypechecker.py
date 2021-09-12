@@ -29,9 +29,7 @@ sys.path.append("../../")
 from src.parsing.Ast import (
     Assert,
 )
-from src.parsing.Parse import (
-    parse_str, parse_file
-)
+from src.parsing.Parse import parse_str, parse_file
 
 from src.parsing.Types import (
     UNKNOWN,
@@ -178,9 +176,7 @@ class TypecheckerTestCase(unittest.TestCase):
 
     def test_typechecking_formula_large(self):
         script_path = pathlib.Path(__file__).parent.absolute()
-        formula, glob = parse_file(
-            str(script_path) + "/test.smt2", silent=False
-        )
+        formula, glob = parse_file(str(script_path) + "/test.smt2", silent=False)
         typecheck(formula, glob)
         oracle(formula)
         self.assertEqual(oracle(formula), True)
