@@ -132,7 +132,6 @@ tests = [  # filename, rule, oracle, number of candidates per formula in order o
 class MockArgs:
     def __init__(self, oracle):
         self.iterations = 1
-        self.step_size = 1
         self.oracle = oracle
         self.rule_set = None
 
