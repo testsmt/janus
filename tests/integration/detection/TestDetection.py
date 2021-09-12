@@ -368,6 +368,7 @@ ignore_list = [
 
 
 if __name__ == "__main__":
+    os.system("mkdir -p tmp/")
     # Create empty mock.smt2, set fuzzer opts
     FN = "tmp/mock.smt2"
     create_mocksmt2(FN)

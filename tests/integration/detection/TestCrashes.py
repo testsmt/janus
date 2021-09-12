@@ -45,7 +45,7 @@ def call_fuzzer(first_config, second_config, fn, opts):
     print(output)
     crash_issues = 0
     for line in output.split("\n"):
-        if "Detected crash bug:" in line:
+        if "Detected crash bug" in line:
             crash_issues += 1
     return crash_issues, cmd
 
@@ -82,6 +82,7 @@ def test_crash_list(msg, fn):
 
 
 if __name__ == "__main__":
+    os.system("mkdir -p tmp/")
     FN = "tmp/mock.smt2"
     create_mocksmt2(FN)
     root_folder = os.path.dirname(os.path.realpath(__file__))
@@ -89,4 +90,4 @@ if __name__ == "__main__":
     for fn in os.listdir(crash_folder):
         fn = crash_folder + "/" + fn
         msg = open(fn).read()
-        test_crash_list(msg, fn)
+        test_crash_list(msg, FN)
