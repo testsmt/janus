@@ -86,4 +86,5 @@ out, cmd = run_janus(
 if "3 seeds processed, 1 valid, 2 invalid" not in out:
     print("An error occurred.", flush=True)
     print("cmd", cmd)
+    print("out", out)
     exit(1)

@@ -40,9 +40,6 @@ def check_solver_clis():
         if len(solvers) == 0:
             print("error: no solver specified", flush=True)
             exit(ERR_USAGE)
-        args.SOLVER_CLIS = solvers
-    else:
-        args.SOLVER_CLIS = args.SOLVER_CLIS.split(";") + solvers
 
 
 def check_timeout():
@@ -134,7 +131,7 @@ def run_checks(parser, strategy):
     if not args.PATH_TO_SEEDS:
         parser.error("no seed-file/seed folder specified")
 
-    # check_solver_clis()
+    check_solver_clis()
     args.SOLVER_CLIS = map(lambda sol: sol.split("|"), args.SOLVER_CLIS.split(";"))
     args.SOLVER_CLIS = [sol + [None]*(2 - len(sol)) for sol in args.SOLVER_CLIS]
     check_timeout()
