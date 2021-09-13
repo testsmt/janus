@@ -372,23 +372,6 @@ class Fuzzer:
                             stderr,
                         )
 
-                        if reference:
-                            # Produce a diff bug report for soundness bugs in
-                            # the opfuzz case
-                            ref_cli = reference[0]
-                            ref_stdout = reference[1]
-                            ref_stderr = reference[2]
-                            self.report_diff(
-                                scratchfile,
-                                "incorrect",
-                                ref_cli,
-                                ref_stdout,
-                                ref_stderr,
-                                solver_cli,
-                                stdout,
-                                stderr,
-                                random_string(),
-                            )
                         return False, "Detected soundness bug."  # stop testing
         return True, ""
 
@@ -586,54 +569,6 @@ class Fuzzer:
             log.write(stderr)
             log.write("stdout:\n")
             log.write(stdout)
-        return report
-
-    def report_diff(
-        self,
-        scratchfile,
-        bugtype,
-        ref_cli,
-        ref_stdout,
-        ref_stderr,
-        sol_cli,
-        sol_stdout,
-        sol_stderr,
-    ):
-        plain_cli = plain(sol_cli)
-        # format: <solver><{crash,wrong,invalid_model}><seed>.<random-str>.smt2
-        report = "%s/%s-%s-%s-%s.smt2" % (
-            self.args.bugsfolder,
-            bugtype,
-            plain_cli,
-            escape(self.currentseeds),
-            random_string(),
-        )
-        try:
-            shutil.copy(scratchfile, report)
-        except Exception:
-            logging.error("error: couldn't copy scratchfile to bugfolder.")
-            exit(ERR_EXHAUSTED_DISK)
-
-        logpath = "%s/%s-%s-%s-%s.output" % (
-            self.args.bugsfolder,
-            bugtype,
-            plain_cli,
-            escape(self.currentseeds),
-            random_string(),
-        )
-        with open(logpath, "w") as log:
-            log.write("*** REFERENCE \n")
-            log.write("command: " + ref_cli + "\n")
-            log.write("stderr:\n")
-            log.write(ref_stderr)
-            log.write("stdout:\n")
-            log.write(ref_stdout)
-            log.write("\n\n*** INCORRECT \n")
-            log.write("command: " + sol_cli + "\n")
-            log.write("stderr:\n")
-            log.write(sol_stderr)
-            log.write("stdout:\n")
-            log.write(sol_stdout)
         return report
 
     def print_stats(self):
