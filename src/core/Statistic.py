@@ -33,6 +33,8 @@ class Statistic:
         self.unsuccessful_generations = 0
         self.mutants = 0
         self.invalid_mutants = 0
+        self.regression_incompleteness = 0
+        self.implication_incompleteness = 0
         self.crashes = 0
         self.soundness = 0
         self.duplicates = 0

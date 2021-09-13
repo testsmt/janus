@@ -330,16 +330,15 @@ class Fuzzer:
                     # Check for type 1 incompleteness (regression)
                     if baseline_solver and result.equals(SolverQueryResult.UNKNOWN):
                         if baseline_solver_result.is_solved():
-                            self.statistic.incompleteness_type_1 += 1
+                            self.statistic.regression_incompleteness += 1
                             self.report(
                                 scratchfile,
-                                "incompleteness-type-1",
+                                "regression-incompleteness",
                                 solver_cli,
                                 stdout,
                                 stderr,
-                                random_string(),
                             )
-                            return (False, "Incompleteness type 1 found.")
+                            return (False, "Detected regression incompleteness")
 
                     # Check for type 2 incompleteness (unsupported implication)
                     previous_result = self.previous_mutant_results[solver_cli]
@@ -348,17 +347,16 @@ class Fuzzer:
                         and len(previous_result.lst) == 1
                         and previous_result.lst[0].is_solved()
                     ):
-                        self.statistic.incompleteness_type_2 += 1
+                        self.statistic.implication_incompleteness += 1
                         self.report(
                             scratchfile,
-                            "incompleteness-type-2",
+                            "implication incompleteness",
                             solver_cli,
                             self.current_rule,
                             stderr,
-                            random_string(),
                             self.previous_mutant,
                         )
-                        return (False, "Incompleteness type 2 found.")
+                        return (False, "Detected implication incompleteness")
 
                     self.previous_mutant_results[solver_cli] = result
 
