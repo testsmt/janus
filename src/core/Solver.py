@@ -38,6 +38,9 @@ class SolverQueryResult(Enum):
         3  # solver query did not return a result because of segfault, timeout etc.
     )
 
+    def is_solved(self):
+        return self == SolverQueryResult.SAT or self == SolverQueryResult.UNSAT
+
 
 def sr2str(sol_res):
     if sol_res == SolverQueryResult.SAT:

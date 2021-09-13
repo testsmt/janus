@@ -46,22 +46,14 @@ def is_sound(res1, res2):
     return True
 
 
-def call_fuzzer(first_config, second_config, fn, opts):
-    cmd = (
-        python
-        + " bin/janus "
-        + opts
-        + '"'
-        + first_config
-        + ";"
-        + second_config
-        + '" '
-        + " "
-        + fn
-    )
+def call_fuzzer(solver_configs, fn, opts):
+    cmd = python + " bin/janus " + opts + '"' + solver_configs + '" ' + " " + fn
     output = subprocess.getoutput(cmd)
     print("$", cmd)
     print(output, flush=True)
+    implication_incompletenesses = 0
+    regression_incompletenesses = 0
+    crash_issues = 0
     crash_issues = 0
     soundness_issues = 0
     segfault_issues = 0
@@ -69,6 +61,10 @@ def call_fuzzer(first_config, second_config, fn, opts):
     timeout_issues = None
     ignored_issues = None
     for line in output.split("\n"):
+        if "Detected regression incompleteness" in line:
+            regression_incompletenesses += 1
+        if "Detected implication incompleteness" in line:
+            implication_incompletenesses += 1
         if "Detected crash bug" in line:
             crash_issues += 1
         if "Detected soundness bug" in line:
@@ -81,6 +77,8 @@ def call_fuzzer(first_config, second_config, fn, opts):
             ignored_issues = int(line.split()[-1])
 
     return (
+        regression_incompletenesses,
+        implication_incompletenesses,
         crash_issues,
         soundness_issues,
         segfault_issues,
@@ -130,8 +128,8 @@ def test_crash_list():
     create_mocksolver_msg(msg, solver)
     first_config = os.path.abspath(solver)
     second_config = os.path.abspath(solver)
-    crash, soundness, segfault, duplicate, timeout, ignored, cmd = call_fuzzer(
-        first_config, second_config, FN, OPTS
+    _, _, crash, soundness, segfault, duplicate, timeout, ignored, cmd = call_fuzzer(
+        f"{first_config}; {second_config}", FN, OPTS
     )
 
     if crash != 1:
@@ -159,8 +157,8 @@ def test_ignore_list():
     create_mocksolver_msg(msg, solver)
     first_config = os.path.abspath(solver)
     second_config = os.path.abspath(solver)
-    crash, soundness, segfault, duplicate, timeout, ignored, cmd = call_fuzzer(
-        first_config, second_config, FN, OPTS
+    _, _, crash, soundness, segfault, duplicate, timeout, ignored, cmd = call_fuzzer(
+        f"{first_config}; {second_config}", FN, OPTS
     )
 
     log = open(newest_log("logs")).read()
@@ -178,8 +176,8 @@ def test_segfault():
     create_mocksolver_segfault(solver)
     first_config = os.path.abspath(solver)
     second_config = os.path.abspath(solver)
-    crash, soundness, segfault, duplicate, timeout, ignored, cmd = call_fuzzer(
-        first_config, second_config, FN, OPTS
+    _, _, crash, soundness, segfault, duplicate, timeout, ignored, cmd = call_fuzzer(
+        f"{first_config}; {second_config}", FN, OPTS
     )
 
     if segfault != 1:
@@ -199,8 +197,8 @@ def test_timeout():
     create_mocksolver_msg(msg, sat_solver)
     first_config = os.path.abspath(timeout_solver)
     second_config = os.path.abspath(sat_solver)
-    crash, soundness, segfault, duplicate, timeout, ignored, cmd = call_fuzzer(
-        first_config, second_config, FN, OPTS
+    _, _, crash, soundness, segfault, duplicate, timeout, ignored, cmd = call_fuzzer(
+        f"{first_config}; {second_config}", FN, OPTS
     )
     log = open(newest_log("logs")).read()
 
@@ -223,8 +221,8 @@ def test_empty_output():
     create_mocksolver_msg(msg, sat_solver)
     first_config = os.path.abspath(empty_solver)
     second_config = os.path.abspath(sat_solver)
-    crash, soundness, segfault, duplicate, timeout, ignored, cmd = call_fuzzer(
-        first_config, second_config, FN, OPTS
+    _, _, crash, soundness, segfault, duplicate, timeout, ignored, cmd = call_fuzzer(
+        f"{first_config}; {second_config}", FN, OPTS
     )
     log = open(newest_log("logs")).read()
     if log.count("No result found in solver output") != 1:
@@ -252,8 +250,8 @@ def test_unsoundness():
     first_config = os.path.abspath(solver1)
     second_config = os.path.abspath(solver2)
     create_mocksolver_msg("\n".join(res2), solver2)
-    crash, soundness, segfault, duplicate, timeout, ignored, cmd = call_fuzzer(
-        first_config, second_config, FN, OPTS
+    _, _, crash, soundness, segfault, duplicate, timeout, ignored, cmd = call_fuzzer(
+        f"{first_config}; {second_config}", FN, OPTS
     )
 
     if soundness != 1:
@@ -283,8 +281,8 @@ def test_soundness():
     first_config = os.path.abspath(solver1)
     second_config = os.path.abspath(solver2)
     create_mocksolver_msg("\n".join(res2), solver2)
-    crash, soundness, segfault, duplicate, timeout, ignored, cmd = call_fuzzer(
-        first_config, second_config, FN, OPTS
+    _, _, crash, soundness, segfault, duplicate, timeout, ignored, cmd = call_fuzzer(
+        f"{first_config}; {second_config}", FN, OPTS
     )
 
     if soundness != 0:
@@ -353,8 +351,8 @@ ignore_list = [
     create_mocksolver_msg(msg, solver)
     first_config = os.path.abspath(solver)
     second_config = os.path.abspath(solver)
-    crash, soundness, segfault, duplicate, timeout, ignored, cmd = call_fuzzer(
-        first_config, second_config, FN, OPTS
+    _, _, crash, soundness, segfault, duplicate, timeout, ignored, cmd = call_fuzzer(
+        f"{first_config}; {second_config}", FN, OPTS
     )
     log = open(newest_log("logs")).read()
     if log.count("Duplicate.") != 1:
@@ -363,6 +361,69 @@ ignore_list = [
     else:
         os.system("rm -rf " + solver)
     os.system("mv config/Config.py.orig config/Config.py")
+
+
+def test_regression_incompleteness():
+    print("*** (9) Regression incompleteness")
+    solver_new = "tmp/solver_new.py"
+    create_mocksolver_msg("unknown", solver_new)
+    solver_old = "tmp/solver_old.py"
+    create_mocksolver_msg("sat", solver_old)
+    first_config = os.path.abspath(solver_new + " | " + solver_old)
+    (
+        regression_incompleteness,
+        implication_incompleteness,
+        crash,
+        soundness,
+        segfault,
+        duplicate,
+        timeout,
+        ignored,
+        cmd,
+    ) = call_fuzzer(f"{first_config}; {first_config}", FN, OPTS)
+
+    if regression_incompleteness != 1:
+        print("[ERROR] Regression incompleteness undetected.")
+        print(cmd)
+        exit(1)
+
+    os.system("rm -rf " + solver_old)
+    os.system("rm -rf " + solver_new)
+
+
+def test_implication_incompleteness():
+    print("*** (10) Implication incompleteness")
+    solver = "tmp/sat-then-unknown-solver.sh"
+    open(solver, "w").write(
+        """\
+#!/usr/bin/env bash
+if [[ "$(cat $1)" = "$(cat tmp/mock.smt2)" ]]; then
+    echo "sat"
+else
+    echo "unknown"
+fi
+    """
+    )
+
+    os.system("chmod +x " + solver)
+    (
+        regression_incompletenesses,
+        implication_incompletenesses,
+        crash,
+        soundness,
+        segfault,
+        duplicate,
+        timeout,
+        ignored,
+        cmd,
+    ) = call_fuzzer(solver, FN, OPTS)
+
+    if implication_incompletenesses != 1:
+        print("[ERROR] Regression incompleteness undetected.")
+        print(cmd)
+        exit(1)
+
+    os.system("rm -rf " + solver)
 
 
 if __name__ == "__main__":
@@ -386,3 +447,7 @@ if __name__ == "__main__":
     # test_soundness()
     print()
     test_duplicate_list()
+    print()
+    test_regression_incompleteness()
+    print()
+    test_implication_incompleteness()
