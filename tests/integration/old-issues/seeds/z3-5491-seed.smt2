@@ -1,0 +1,5 @@
+(declare-const P String)
+(declare-const T String)
+(assert (= T P))
+;(assert (= (str.is_digit T) (str.is_digit P)))
+(check-sat)
