@@ -87,4 +87,5 @@ def init_oracle(args):
         return SolverResult(SolverQueryResult.SAT)
     elif args.oracle == "unsat":
         return SolverResult(SolverQueryResult.UNSAT)
-    assert False
+    else:
+        return SolverResult(SolverQueryResult.NO_RESULT)

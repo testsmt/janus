@@ -21,6 +21,7 @@
 # SOFTWARE.
 
 import os
+import subprocess
 import re
 import copy
 import time
@@ -89,7 +90,7 @@ class Fuzzer:
         if not admissible_seed_size(seed, self.args):
             self.statistic.invalid_seeds += 1
             logging.debug("Skip invalid seed: exceeds max file size")
-            return None, None
+            return None, None, None
 
         self.currentseeds = pathlib.Path(seed).stem
         script, glob = parse_file(seed, silent=True)
@@ -99,9 +100,9 @@ class Fuzzer:
             # Parsing was unsuccessful.
             self.statistic.invalid_seeds += 1
             logging.debug("Skipping invalid seed: error in parsing")
-            return None, None
+            return None, None, None
 
-        return script, glob
+        return script, glob, seed
 
     def get_script(self, seeds):
         seed = seeds.pop(random.randrange(len(seeds)))
@@ -125,7 +126,7 @@ class Fuzzer:
 
         while len(seeds) != 0:
             if self.strategy == "impbased":
-                script, glob = self.get_script(seeds)
+                script, glob, seed = self.get_script(seeds)
 
                 if not script:
                     continue
@@ -145,7 +146,8 @@ class Fuzzer:
 
             self.previous_mutant_results = {}
             self.previous_mutant = None
-            for solver_cli, baseline_cli in self.args.SOLVER_CLIS:
+
+            for solver_cli, _ in self.args.SOLVER_CLIS:
                 self.previous_mutant_results[solver_cli] = SolverResult(
                     SolverQueryResult.UNKNOWN
                 )
@@ -158,11 +160,9 @@ class Fuzzer:
 
                     self.mutator.script = copy.deepcopy(script)
                     self.previous_mutant_results = {}
-                    self.previous_mutant = None
                     for solver_cli, _ in self.args.SOLVER_CLIS:
-                        self.previous_mutant_results[solver_cli] = SolverResult(
-                            SolverQueryResult.UNKNOWN
-                        )
+                        out = subprocess.getoutput(f"{solver_cli} {seed}")
+                        self.previous_mutant_results[solver_cli] = grep_result(out)
 
                 self.previous_mutant = copy.deepcopy(self.mutator.script)
                 formula, success, rule_name = self.mutator.mutate()
@@ -301,7 +301,7 @@ class Fuzzer:
                         print("\nPlease check your solver command-line interfaces.")
                         logging.info("Command not found.")
                         continue  # continue with next solver (4)
-                    self.statistic.ignored += 1
+                    self.statistic.invalid_seeds += 1
                 # (3c) if there is no '^sat$' or '^unsat$' in the output
                 elif (
                     not re.search("^unsat$", stdout, flags=re.MULTILINE)
@@ -548,7 +548,7 @@ class Fuzzer:
     # return False  # Stop testing.
     # return True  # Continue to next seed.
 
-    def report(self, scratchfile, bugtype, cli, stdout, stderr):
+    def report(self, scratchfile, bugtype, cli, stdout, stderr, previous_mutant=None):
         plain_cli = plain(cli)
         # format: <solver><{crash,wrong,invalid_model}><seed>.<random-str>.smt2
         report = "%s/%s-%s-%s-%s.smt2" % (
@@ -558,8 +558,18 @@ class Fuzzer:
             escape(self.currentseeds),
             random_string(),
         )
+        report_previous = "%s/%s-%s-%s-%s-previous.smt2" % (
+            self.args.bugsfolder,
+            bugtype,
+            plain_cli,
+            escape(self.currentseeds),
+            random_string(),
+        )
         try:
             shutil.copy(scratchfile, report)
+            if previous_mutant:
+                with open(report_previous, 'w') as pr:
+                    pr.write(str(previous_mutant))
         except Exception:
             logging.error("error: couldn't copy scratchfile to bugfolder.")
             exit(ERR_EXHAUSTED_DISK)
