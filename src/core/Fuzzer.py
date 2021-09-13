@@ -178,7 +178,7 @@ class Fuzzer:
 
                 if not shouldContinue:
                     logging.info(
-                        f"Iteration {self.args.iterations}: {reason}. Stop testing on this seed."
+                        f"Iteration {i}: {reason}. Stop testing on this seed."
                     )
                     break
 
