@@ -31,9 +31,9 @@ WARNING = "\033[91m"
 ENDC = "\033[0m"
 
 
-def init_logging(strategy, quiet_mode, name, args):
+def init_logging(quiet_mode, name, args):
     fn = (
-        datetime.datetime.now().strftime(strategy + "-%Y-%m-%d-%M:%S-%p")
+        datetime.datetime.now().strftime("%Y-%m-%d-%M:%S-%p")
         + "-"
         + str(name)
         + ".log"
@@ -58,14 +58,11 @@ def init_logging(strategy, quiet_mode, name, args):
         logging.getLogger().addHandler(console)
 
 
-def log_strategy_num_seeds(strategy, seeds, targets):
+def log_num_seeds(seeds, targets):
     num_targets = len(targets)
     num_seeds = len(seeds)
     logging.info(
-        "Strategy: "
-        + strategy
-        + ", "
-        + str(num_targets)
+        str(num_targets)
         + " testing targets, "
         + str(num_seeds)
         + " seeds"

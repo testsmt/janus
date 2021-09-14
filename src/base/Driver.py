@@ -108,20 +108,8 @@ def check_diff_test():
         exit(ERR_USAGE)
 
 
-def check_fusion():
-    if len(args.PATH_TO_SEEDS) < 2:
-        print(
-            "error: please provide at least two seeds for the fusion strategy",
-            flush=True,
-        )
-        exit(ERR_USAGE)
 
-    if len(args.SOLVER_CLIS) < 1:
-        print("error: please provide at one SMT solvers", flush=True)
-        exit(ERR_USAGE)
-
-
-def run_checks(parser, strategy):
+def run_checks(parser):
     global args
     args = parser.parse_args()
     if not args.PATH_TO_SEEDS:

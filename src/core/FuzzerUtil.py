@@ -72,7 +72,7 @@ def grep_result(stdout):
     return result
 
 
-def get_seeds(args, strategy):
+def get_seeds(args):
     return args.PATH_TO_SEEDS
 
 

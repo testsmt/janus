@@ -43,7 +43,7 @@ from src.base.Exitcodes import OK_BUGS, OK_NOBUGS, ERR_EXHAUSTED_DISK
 
 from src.core.Logger import (
     init_logging,
-    log_strategy_num_seeds,
+    log_num_seeds,
     log_generation_attempt,
     log_finished_generations,
     log_crash_trigger,
@@ -72,10 +72,9 @@ MAX_TIMEOUTS = 32
 
 
 class Fuzzer:
-    def __init__(self, args, strategy):
+    def __init__(self, args):
         self.args = args
         self.currentseeds = ""
-        self.strategy = strategy
         self.statistic = Statistic()
         self.mutator = None
         self.old_time = time.time()
@@ -84,7 +83,7 @@ class Fuzzer:
         self.name = random_string()
         self.timeout_of_current_seed = 0
 
-        init_logging(strategy, self.args.quiet, self.name, args)
+        init_logging(self.args.quiet, self.name, args)
 
     def process_seed(self, seed):
         if not admissible_seed_size(seed, self.args):
@@ -121,24 +120,20 @@ class Fuzzer:
         from the seed corpus, instantiates a mutator and then generates
         `self.args.iterations` many iterations per seed.
         """
-        seeds = get_seeds(self.args, self.strategy)
-        log_strategy_num_seeds(self.strategy, seeds, self.args.SOLVER_CLIS)
+        seeds = get_seeds(self.args)
+        log_num_seeds(seeds, self.args.SOLVER_CLIS)
 
         while len(seeds) != 0:
-            if self.strategy == "impbased":
-                script, glob, seed = self.get_script(seeds)
+            script, glob, seed = self.get_script(seeds)
 
-                if not script:
-                    continue
+            if not script:
+                continue
 
-                typecheck(script, glob)
-                script_cp = copy.deepcopy(script)
-                self.mutator = ImplicationBasedWeakeningStrengthening(
-                    script_cp, glob, self.args
-                )
-
-            else:
-                assert False
+            typecheck(script, glob)
+            script_cp = copy.deepcopy(script)
+            self.mutator = ImplicationBasedWeakeningStrengthening(
+                script_cp, glob, self.args
+            )
 
             # log_generation_attempt(self.args)
 
@@ -155,7 +150,7 @@ class Fuzzer:
             for i in range(self.args.iterations):
                 self.print_stats()
 
-                if self.strategy == "impbased" and i % self.args.walk_length == 0:
+                if i % self.args.walk_length == 0:
                     logging.info("Restarting from original seed.")
 
                     self.mutator.script = copy.deepcopy(script)

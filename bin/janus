@@ -80,12 +80,10 @@ def main():
         exit(OK_NOBUGS)
 
     else:
-        args = run_checks(parser, "impbased")
-        # args.SOLVER_CLIS = map(lambda sol: sol.split("|"), args.SOLVER_CLIS.split(";"))
-        # args.SOLVER_CLIS = [sol + [None]*(2 - len(sol)) for sol in args.SOLVER_CLIS]
+        args = run_checks(parser)
 
         try:
-            fuzzer = Fuzzer(args, "impbased")
+            fuzzer = Fuzzer(args)
 
             def print_stats():
                 fuzzer.statistic.printsum()
