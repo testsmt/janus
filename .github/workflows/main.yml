@@ -34,6 +34,9 @@ jobs:
       run: |
         python tests/integration/detection/TestDetection.py
         python tests/integration/detection/TestCrashes.py
+    - name: Rediscovering old issues
+      run: |
+        python tests/integration/old-issues/TestIssueRediscovery.py
     - name: Misc
       run: |
         python tests/integration/misc/FileSizeLimit.py

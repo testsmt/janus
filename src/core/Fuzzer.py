@@ -177,9 +177,7 @@ class Fuzzer:
                 shouldContinue, reason = self.test(formula, i)
 
                 if not shouldContinue:
-                    logging.info(
-                        f"Iteration {self.args.iterations}: {reason}. Stop testing on this seed."
-                    )
+                    logging.info(f"Iteration {i}: {reason}. Stop testing on this seed.")
                     break
 
                 self.statistic.mutants += 1

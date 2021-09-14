@@ -60,7 +60,7 @@ class RegexRule(Rule):
 
 
 class RegexOperatorReplacement(RegexRule):
-    def __init__(self, opStrong, opWeak):
+    def __init__(self, opWeak, opStrong):
         self.opWeak = opWeak
         self.opStrong = opStrong
         super().__init__(f"OPREP[{opWeak}][{opStrong}]")
