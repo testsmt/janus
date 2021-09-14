@@ -50,11 +50,19 @@ def run_janus(first_config, second_config, directory, opts):
 
 
 def get_z3_4_8_10():
-    if not Path("tmp/z3-4.8.10/bin/z3").is_file():
+    if not Path("tmp/z3-4.8.10-x64-ubuntu-18.04/bin/z3").is_file():
         z3_link = "https://github.com/Z3Prover/z3/releases/download/z3-4.8.10/z3-4.8.10-x64-ubuntu-18.04.zip"
         os.system("wget " + z3_link)
         os.system("unzip z3-4.8.10-x64-ubuntu-18.04.zip -d tmp/")
     return os.path.abspath("tmp/z3-4.8.10-x64-ubuntu-18.04/bin/z3")
+
+
+def get_z3_4_8_12():
+    if not Path("tmp/z3-4.8.12-x64-glibc-2.31/bin/z3").is_file():
+        z3_link = "https://github.com/Z3Prover/z3/releases/download/z3-4.8.12/z3-4.8.12-x64-glibc-2.31.zip"
+        os.system("wget " + z3_link)
+        os.system("unzip z3-4.8.12-x64-glibc-2.31.zip -d tmp/")
+    return os.path.abspath("tmp/z3-4.8.12-x64-glibc-2.31/bin/z3")
 
 
 def cleanup():
@@ -63,13 +71,24 @@ def cleanup():
 
 # cleanup()
 os.system("mkdir -p tmp/")
-z3 = get_z3_4_8_10()
-first_config = z3
+z3_4_8_10 = get_z3_4_8_10()
+z3_4_8_12 = get_z3_4_8_12()
 seeds = str(os.path.dirname(os.path.realpath(__file__))) + "/seeds"
 
 # https://github.com/Z3Prover/z3/issues/5491
-out = subprocess.getoutput(f"./bin/janus  {z3} {seeds}/z3-5491-seed.smt2")
+print("Retesting z3#5491...")
+out = subprocess.getoutput(f"./bin/janus  {z3_4_8_10} {seeds}/z3-5491-seed.smt2")
 if "Detected implication incompleteness." not in out:
     exit(1)
+print("Successfully rediscovered.")
+
+print("Retesting z3#5390...")
+# https://github.com/Z3Prover/z3/issues/5390
+out = subprocess.getoutput(
+    f"./bin/janus '{z3_4_8_12} | {z3_4_8_10}' {seeds}/z3-5390-seed.smt2"
+)
+if "Detected regression incompleteness." not in out:
+    exit(1)
+print("Successfully rediscovered.")
 
 cleanup()

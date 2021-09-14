@@ -127,8 +127,8 @@ class ImplicationBasedWeakeningStrengthening(Mutator):
             Regex_union_idempotent()
             # , Regex_distribute_union_concat()
             ,
-            RegexOperatorReplacement("re.+", "re.*"),
-            RegexOperatorReplacement("re.inter", "re.union"),
+            RegexOperatorReplacement("re.*", "re.+"),
+            RegexOperatorReplacement("re.union", "re.inter"),
             RegexAppend(),
         ]
 
