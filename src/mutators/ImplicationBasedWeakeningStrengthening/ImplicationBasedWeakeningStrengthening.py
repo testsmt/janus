@@ -12,11 +12,6 @@ from src.parsing.Ast import Assert
 
 from src.mutators.ImplicationBasedWeakeningStrengthening.common import *
 from src.mutators.ImplicationBasedWeakeningStrengthening.rules.regex import *
-from src.mutators.ImplicationBasedWeakeningStrengthening.rules.equalities import (
-    EmptyStringReplace,
-    StringPrependToEmptyReplace,
-    StringToInt,
-)
 from src.mutators.ImplicationBasedWeakeningStrengthening.rules.lhs_rhs import (
     OperatorReplacement,
     RelationPreservingAutomorphism,
@@ -111,9 +106,6 @@ class ImplicationBasedWeakeningStrengthening(Mutator):
             StringSuffixLength(),
             StringPrefixLength(),
             StringContainsLength(),
-            EmptyStringReplace(),
-            StringPrependToEmptyReplace(),
-            StringToInt(),
         ]
 
         self.regex_rules = [
@@ -506,10 +498,6 @@ class ImplicationBasedWeakeningStrengthening(Mutator):
                 res.extend(self.get_candidates(arg, rule, parity))
 
         elif term.quantifier is not None:
-            for arg in term.subterms:
-                res.extend(self.get_candidates(arg, rule, parity))
-
-        elif rule.nonBool and term.subterms is not None:
             for arg in term.subterms:
                 res.extend(self.get_candidates(arg, rule, parity))
 

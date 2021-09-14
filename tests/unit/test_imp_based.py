@@ -120,9 +120,6 @@ tests = [  # filename, rule, oracle, number of candidates per formula in order o
     ("regex-add-plus", "REGEXMOD[add_plus]", "sat", [1], [0]),
     ("regex-add-opt", "REGEXMOD[add_opt]", "sat", [1], [0]),
     ("regex-add-loop", "REGEXMOD[add_loop]", "sat", [1], [0]),
-    ("empty-string-replace", "EQUAL[EMPTYSTRREP]", "sat", [2, 3, 1], [0, 0, 0]),
-    ("str-prepend-to-empty-replace", "EQUAL[STRPRETOEMPTREP]", "sat", [1, 1], [0, 0]),
-    ("str-to-int", "EQUAL[STRTOINT]", "sat", [1, 2], [0, 1])
     # , ('reactivity-lemma-node2938', lambda formulas: NumberRelationConstantShift('Real', 1), 'sat', [12], [4])
     # , ('ETCS-essentials-live-range2.proof-node1046', lambda formulas: NumberRelationConstantShift('Real', 7.4), 'sat', [14], [12])
     # , ('z3-issue-5042-mod', lambda formulas: NumberRelationSkewedShift('Real', 1), 'sat', [2], [1])

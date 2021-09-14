@@ -27,18 +27,6 @@ jobs:
     - name: Spell check 
       run: |
         codespell --skip="Solver.py,SMTLIBv2*,*.g4,*.tokens,*.interp,*.smt2" bin/* config/* examples/* scripts/* src/* tests/*
-    - name: Run Unittests
+    - name: Run Tests
       run: |
-        python -m unittest tests/RunUnitTests.py
-    - name: Detection logic 
-      run: |
-        python tests/integration/detection/TestDetection.py
-        python tests/integration/detection/TestCrashes.py
-    - name: Rediscovering old issues
-      run: |
-        python tests/integration/old-issues/TestIssueRediscovery.py
-    - name: Misc
-      run: |
-        python tests/integration/misc/FileSizeLimit.py
-        python tests/integration/misc/NoSolvers.py
-        python tests/integration/misc/DirectoryMode.py
+        ./test.sh
