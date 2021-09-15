@@ -108,7 +108,6 @@ def check_diff_test():
         exit(ERR_USAGE)
 
 
-
 def run_checks(parser):
     global args
     args = parser.parse_args()

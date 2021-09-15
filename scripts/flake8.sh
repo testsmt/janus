@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 if [ -z "$1" ]; then
-	source ./bin/source-files.sh
+	source ./scripts/source-files.sh
 	flake8 --max-line-length 88 $PYTHON_SOURCE_FILES
 else
 	flake8 --max-line-length 88 "$1"

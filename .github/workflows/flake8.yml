@@ -19,4 +19,4 @@ jobs:
         python -m pip install flake8
     - name: Check code against black formatting
       run: |
-        ./bin/flake8.sh
+        ./scripts/flake8.sh

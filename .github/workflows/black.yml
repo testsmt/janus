@@ -19,4 +19,4 @@ jobs:
         python -m pip install black
     - name: Check code against black formatting
       run: |
-        ./bin/black-check.sh
+        ./scripts/black-check.sh

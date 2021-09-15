@@ -33,10 +33,7 @@ ENDC = "\033[0m"
 
 def init_logging(quiet_mode, name, args):
     fn = (
-        datetime.datetime.now().strftime("%Y-%m-%d-%M:%S-%p")
-        + "-"
-        + str(name)
-        + ".log"
+        datetime.datetime.now().strftime("%Y-%m-%d-%M:%S-%p") + "-" + str(name) + ".log"
     )
     log_fn = args.logfolder + "/" + fn
     logging.basicConfig(
@@ -61,12 +58,7 @@ def init_logging(quiet_mode, name, args):
 def log_num_seeds(seeds, targets):
     num_targets = len(targets)
     num_seeds = len(seeds)
-    logging.info(
-        str(num_targets)
-        + " testing targets, "
-        + str(num_seeds)
-        + " seeds"
-    )
+    logging.info(str(num_targets) + " testing targets, " + str(num_seeds) + " seeds")
 
 
 def log_generation_attempt(args):
