@@ -1,5 +1,6 @@
 #!/usr/bin/env sh
 
+./scripts/black-check.sh &&
 python3 -m unittest tests/RunUnitTests.py &&
 python3 tests/integration/detection/TestDetection.py &&
 python3 tests/integration/detection/TestCrashes.py &&
