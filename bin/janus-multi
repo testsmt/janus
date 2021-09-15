@@ -1,0 +1,87 @@
+#!/usr/bin/env python3
+
+import time
+import signal
+import sys
+import os
+import subprocess
+
+import fuzzing_setup
+
+SOLVERS = ['z3']
+SEED_DIR = '/home/mauro/desktop/semantic-fusion-seeds/LIA/sat'
+MAX_NUM_INSTANCES = 2
+ITERATIONS = 300
+WALK_LENGTH = 20
+RULE_SET = 'number_relation_rules'
+
+if __name__ == "__main__":
+
+    ps = []
+
+    def start_new_instance():
+        return subprocess.Popen(
+            [
+                'bin/janus',
+                '-rs',
+                RULE_SET,
+                '-i',
+                str(ITERATIONS),
+                '-wl',
+                str(WALK_LENGTH),
+                '-o',
+                'sat',
+                ';'.join(SOLVERS),
+                SEED_DIR,
+            ],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+        )
+
+    def killall():
+        for p in ps:
+            p.terminate()
+
+    def replace_finished():
+        for i, p in enumerate(ps):
+            rc = p.poll()
+            if rc is not None:
+                print(f"Instance {i} finished. Start a new one")
+                ps[i] = start_new_instance()
+
+    def print_status():
+        running = 0
+        bugs = len(
+            list(
+                filter(
+                    lambda f: f.endswith('.smt2') and not f.endswith('-previous.smt2'),
+                    os.listdir('bugs'),
+                )
+            )
+        )
+        for p in ps:
+            if p.poll() is None:
+                running += 1
+        print(
+            f"""\
+Running instances: {running}
+Bugs found: {bugs}\
+"""
+        )
+
+    def cleanup(signum, frame):
+        signal.signal(signum, signal.SIG_IGN)
+        killall()
+        sys.exit(0)
+
+    signal.signal(signal.SIGINT, cleanup)
+
+    for _ in range(MAX_NUM_INSTANCES):
+        ps.append(start_new_instance())
+
+    while True:
+        print_status()
+        time.sleep(5)
+        replace_finished()
+
+    killall()

@@ -27,7 +27,7 @@ python = sys.executable
 
 
 def call_fuzzer(fn):
-    cmd = python + ' bin/janus "" ' + fn
+    cmd = python + ' bin/janus -o sat "" ' + fn
     output = subprocess.getoutput(cmd)
     return output
 

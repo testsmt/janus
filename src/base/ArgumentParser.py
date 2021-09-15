@@ -102,8 +102,8 @@ def add_args(parser, rootpath, current_dir):
     parser.add_argument(
         "-o",
         "--oracle",
-        default="sat",
         metavar="{sat,unsat}",
+        required=True,
         type=str,
     )
     parser.add_argument(

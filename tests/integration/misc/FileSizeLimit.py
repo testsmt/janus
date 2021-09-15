@@ -58,7 +58,7 @@ msg = "sat"
 create_mocksolver_msg(msg, solver)
 first_config = os.path.abspath(solver)
 second_config = os.path.abspath(solver)
-opts = "-i 1 "
+opts = "-i 1 -o sat "
 FN = os.path.dirname(os.path.realpath(__file__)) + "/too_large.smt2"
 
 out, cmd = call_fuzzer(first_config, second_config, FN, opts)
