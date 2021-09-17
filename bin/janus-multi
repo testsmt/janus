@@ -5,24 +5,50 @@ import signal
 import sys
 import os
 import subprocess
+import time
+import datetime
 
-import fuzzing_setup
+Z3_NEW = '/local/home/maurob/impbased-fuzzing-experiments/solvers/z3/build/z3'
+Z3_OLD = '/local/home/maurob/impbased-fuzzing-experiments/solvers/z3-4.8.12/build/z3'
+CVC5_NEW = '/local/home/maurob/impbased-fuzzing-experiments/solvers/cvc4/build/bin/cvc5 -q --strings-exp'
+CVC5_OLD = '/local/home/maurob/impbased-fuzzing-experiments/solvers/cvc4-1.8 -q --strings-exp'
 
-SOLVERS = ['z3']
-SEED_DIR = '/home/mauro/desktop/semantic-fusion-seeds/LIA/sat'
-MAX_NUM_INSTANCES = 2
+SOLVERS = [f'{Z3_NEW} | {Z3_OLD}', f'{CVC5_NEW} | {CVC5_OLD}']
+SEED_DIR = '/local/home/maurob/impbased-fuzzing-experiments/semantic-fusion-seeds/QF_SLIA/sat'
+MAX_NUM_INSTANCES = 10
+MAX_NUM_REDUCERS = 5
+NUM_PROCS_PER_REDUCER = 10
+SOLVER_TIMEOUT = 10
 ITERATIONS = 300
 WALK_LENGTH = 20
-RULE_SET = 'number_relation_rules'
+TIMEOUT_PER_INSTANCE = f"{str(ITERATIONS*SOLVER_TIMEOUT)}s"
+TIMEOUT_PER_REDUCER = '1h'
+RULE_SET = 'all'
+OUTPUT_WIDTH = 80
 
 if __name__ == "__main__":
 
-    ps = []
+    start_time = datetime.datetime.now()
+    js = []
+    rs = []
+
+    num_additional_output_lines = 0
+
+    def start_new_reducer(old_solver, new_solver, f):
+        return subprocess.Popen(['timeout', TIMEOUT_PER_REDUCER, 'ddsmt', '-j', str(NUM_PROCS_PER_REDUCER), '-v', '--ignore-output', f"./bugs/{f}", f"./reducing/{f}", './bin/check-regression.py', str(SOLVER_TIMEOUT), old_solver, new_solver], 
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+        )
+
 
     def start_new_instance():
         return subprocess.Popen(
             [
+                'timeout',
+                TIMEOUT_PER_INSTANCE,
                 'bin/janus',
+                '-t',
+                str(SOLVER_TIMEOUT),
                 '-rs',
                 RULE_SET,
                 '-i',
@@ -39,18 +65,30 @@ if __name__ == "__main__":
         )
 
     def killall():
-        for p in ps:
-            p.terminate()
+        for j in js:
+            j.terminate()
+        for b, r in rs:
+            r.terminate()
 
     def replace_finished():
-        for i, p in enumerate(ps):
-            rc = p.poll()
+        for i, j in enumerate(js):
+            rc = j.poll()
             if rc is not None:
-                print(f"Instance {i} finished. Start a new one")
-                ps[i] = start_new_instance()
+                js[i] = start_new_instance()
+        for i, (f, r) in enumerate(rs):
+            rc = r.poll()
+            if rc is not None:
+                os.rename(f"./reducing/{f}", f"./reduced/{f}")
+                os.rename(f"./bugs/{f}", f"./reduced/{f}.orig")
+                del rs[i]
+                reducible_bugs = list(filter(lambda f: f.endswith('.smt2') and ('regression-incompleteness-cvc5' in f or 'regression-incompleteness-z3' in f), os.listdir('bugs')))
+                if len(reducible_bugs) > 0:
+                    bug = reducible_bugs[0]
+                    solver_old, solver_new = CVC5_OLD,CVC_NEW if 'regression-incompleteness-cvc5' in bug else Z3_OLD, Z3_NEW
+                    rs.append((bug, start_new_reducer(CVC5_OLD, CVC5_NEW, bug)))
 
     def print_status():
-        running = 0
+        reduced = len(list(filter(lambda f: f.endswith('.smt2'), list(os.listdir('reduced')))))
         bugs = len(
             list(
                 filter(
@@ -59,15 +97,26 @@ if __name__ == "__main__":
                 )
             )
         )
-        for p in ps:
-            if p.poll() is None:
-                running += 1
-        print(
-            f"""\
-Running instances: {running}
-Bugs found: {bugs}\
-"""
-        )
+        running_j = 0
+        for j in js:
+            if j.poll() is None:
+                running_j += 1
+        running_r = 0
+        for b, r in rs:
+            if r.poll() is None:
+                running_r += 1
+        status_lines = list(map(lambda l: l.ljust(OUTPUT_WIDTH), [
+        f"started: {start_time.strftime('%d/%m/%Y %H:%M:%S')}",
+        f"uptime: {str(datetime.datetime.now() - start_time).split('.')[0]}",
+        f"Running instances: {running_j}/{MAX_NUM_INSTANCES}",
+        f"Running reducers: {running_r}/{MAX_NUM_REDUCERS}",
+        f"Unreduced bugs: {bugs}",
+        f"Reduced bugs: {reduced}"
+        ]))
+        status = '\n'.join(status_lines) + '\n' + ('='*OUTPUT_WIDTH) + '\n'
+        prevlines = "\033[F" * (status.count('\n') + 1)
+        sys.stdout.write(prevlines + '\n' + status)
+        sys.stdout.flush()
 
     def cleanup(signum, frame):
         signal.signal(signum, signal.SIG_IGN)
@@ -77,11 +126,17 @@ Bugs found: {bugs}\
     signal.signal(signal.SIGINT, cleanup)
 
     for _ in range(MAX_NUM_INSTANCES):
-        ps.append(start_new_instance())
+        js.append(start_new_instance())
+
+    for bug in filter(lambda f: f.endswith('.smt2'), os.listdir('bugs')):
+        if len(rs) >= MAX_NUM_REDUCERS:
+            break
+        if 'regression-incompleteness-cvc5' in bug:
+            rs.append((bug, start_new_reducer('/local/home/maurob/impbased-fuzzing-experiments/solvers/cvc4-1.8 -q --strings-exp', '/local/home/maurob/impbased-fuzzing-experiments/solvers/cvc4/build/bin/cvc5 -q --strings-exp', bug)))
 
     while True:
         print_status()
-        time.sleep(5)
         replace_finished()
+        time.sleep(5)
 
     killall()
