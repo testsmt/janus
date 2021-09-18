@@ -17,6 +17,7 @@ rootpath = str(path.parent.absolute().parent)
 sys.path.append(rootpath)
 
 from fuzzing_configuration import *
+
 SOLVERS = [f'{Z3_NEW} | {Z3_OLD}', f'{CVC5_NEW} | {CVC5_OLD}']
 
 
@@ -26,6 +27,7 @@ def pick_random_file(from_dir):
         return pick_random_file(f"{from_dir}/{next_step}")
     else:
         return f"{from_dir}/{next_step}"
+
 
 if __name__ == "__main__":
 
@@ -37,11 +39,25 @@ if __name__ == "__main__":
 
     def start_new_reducer(old_solver, new_solver, f):
         os.rename(f'./bugs/{f}', f'./bugs/{f}.orig')
-        return subprocess.Popen(['timeout', TIMEOUT_PER_REDUCER, 'ddsmt', '-j', str(NUM_PROCS_PER_REDUCER), '-v', '--ignore-output', f"./bugs/{f}.orig", f"./reducing/{f}", './bin/check-regression.py', str(SOLVER_TIMEOUT), old_solver, new_solver], 
+        return subprocess.Popen(
+            [
+                'timeout',
+                TIMEOUT_PER_REDUCER,
+                'ddsmt',
+                '-j',
+                str(NUM_PROCS_PER_REDUCER),
+                '-v',
+                '--ignore-output',
+                f"./bugs/{f}.orig",
+                f"./reducing/{f}",
+                './bin/check-regression.py',
+                str(SOLVER_TIMEOUT),
+                old_solver,
+                new_solver,
+            ],
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
         )
-
 
     def start_new_instance():
 
@@ -94,26 +110,55 @@ if __name__ == "__main__":
                 os.rename(f"./reducing/{f}", f"./reduced/{f}")
                 os.rename(f"./bugs/{f}.orig", f"./reduced/{f}.orig")
                 del rs[i]
-                reducible_bugs = list(filter(lambda f: f.endswith('.smt2') and ('regression-incompleteness-cvc5' in f or 'regression-incompleteness-z3' in f), os.listdir('bugs')))
+                reducible_bugs = list(
+                    filter(
+                        lambda f: f.endswith('.smt2')
+                        and (
+                            'regression-incompleteness-cvc5' in f
+                            or 'regression-incompleteness-z3' in f
+                        ),
+                        os.listdir('bugs'),
+                    )
+                )
                 if len(reducible_bugs) > 0:
                     bug = reducible_bugs[0]
-                    solver_old, solver_new = (CVC5_OLD,CVC5_NEW) if 'regression-incompleteness-cvc5' in bug else (Z3_OLD, Z3_NEW)
+                    solver_old, solver_new = (
+                        (CVC5_OLD, CVC5_NEW)
+                        if 'regression-incompleteness-cvc5' in bug
+                        else (Z3_OLD, Z3_NEW)
+                    )
                     rs.append((bug, start_new_reducer(solver_old, solver_new, bug)))
 
-        reducible_bugs = list(filter(lambda f: f.endswith('.smt2') and ('regression-incompleteness-cvc5' in f or 'regression-incompleteness-z3' in f), os.listdir('bugs')))
+        reducible_bugs = list(
+            filter(
+                lambda f: f.endswith('.smt2')
+                and (
+                    'regression-incompleteness-cvc5' in f
+                    or 'regression-incompleteness-z3' in f
+                ),
+                os.listdir('bugs'),
+            )
+        )
 
-        for bug,_ in zip(reducible_bugs, range(len(rs), MAX_NUM_REDUCERS)):
-            solver_old, solver_new = (CVC5_OLD,CVC5_NEW) if 'regression-incompleteness-cvc5' in bug else (Z3_OLD, Z3_NEW)
+        for bug, _ in zip(reducible_bugs, range(len(rs), MAX_NUM_REDUCERS)):
+            solver_old, solver_new = (
+                (CVC5_OLD, CVC5_NEW)
+                if 'regression-incompleteness-cvc5' in bug
+                else (Z3_OLD, Z3_NEW)
+            )
             rs.append((bug, start_new_reducer(solver_old, solver_new, bug)))
 
     def print_status():
-       
+
         cvc5_regressions = 0
         cvc5_implications = 0
         z3_regressions = 0
         z3_implications = 0
 
-        for f in filter(lambda f: f.endswith('.smt2') and not f.endswith('-previous.smt2'),os.listdir('bugs')):
+        for f in filter(
+            lambda f: f.endswith('.smt2') and not f.endswith('-previous.smt2'),
+            os.listdir('bugs'),
+        ):
             if 'regression-incompleteness-cvc5' in f:
                 cvc5_regressions += 1
             if 'regression-incompleteness-z3' in f:
@@ -128,7 +173,10 @@ if __name__ == "__main__":
         z3_regressions_r = 0
         z3_implications_r = 0
 
-        for f in filter(lambda f: f.endswith('.smt2') and not f.endswith('-previous.smt2'),os.listdir('reduced')):
+        for f in filter(
+            lambda f: f.endswith('.smt2') and not f.endswith('-previous.smt2'),
+            os.listdir('reduced'),
+        ):
             if 'regression-incompleteness-cvc5' in f:
                 cvc5_regressions_r += 1
             if 'regression-incompleteness-z3' in f:
@@ -149,18 +197,23 @@ if __name__ == "__main__":
 
         num_processes = len(psutil.Process().children())
 
-        status_lines = list(map(lambda l: l.ljust(OUTPUT_WIDTH), [
-        f"started: {start_time.strftime('%d/%m/%Y %H:%M:%S')}",
-        f"uptime: {str(datetime.datetime.now() - start_time).split('.')[0]}",
-        f"number of processes: {num_processes}",
-        f"Running instances: {running_j}/{MAX_NUM_INSTANCES}",
-        f"Running reducers: {running_r}/{MAX_NUM_REDUCERS}",
-        f"Unreduced regressions: {z3_regressions} (z3), {cvc5_regressions} (cvc5)",
-        f"Unreduced implications: {z3_implications} (z3), {cvc5_implications} (cvc5)",
-        f"Reduced regressions: {z3_regressions_r} (z3), {cvc5_regressions_r} (cvc5)",
-        f"Reduced implications: {z3_implications_r} (z3), {cvc5_implications_r} (cvc5)",
-        ]))
-        status = '\n'.join(status_lines) + '\n' + ('='*OUTPUT_WIDTH) + '\n'
+        status_lines = list(
+            map(
+                lambda l: l.ljust(OUTPUT_WIDTH),
+                [
+                    f"started: {start_time.strftime('%d/%m/%Y %H:%M:%S')}",
+                    f"uptime: {str(datetime.datetime.now() - start_time).split('.')[0]}",
+                    f"number of processes: {num_processes}",
+                    f"Running instances: {running_j}/{MAX_NUM_INSTANCES}",
+                    f"Running reducers: {running_r}/{MAX_NUM_REDUCERS}",
+                    f"Unreduced regressions: {z3_regressions} (z3), {cvc5_regressions} (cvc5)",
+                    f"Unreduced implications: {z3_implications} (z3), {cvc5_implications} (cvc5)",
+                    f"Reduced regressions: {z3_regressions_r} (z3), {cvc5_regressions_r} (cvc5)",
+                    f"Reduced implications: {z3_implications_r} (z3), {cvc5_implications_r} (cvc5)",
+                ],
+            )
+        )
+        status = '\n'.join(status_lines) + '\n' + ('=' * OUTPUT_WIDTH) + '\n'
         prevlines = "\033[F" * (status.count('\n') + 1)
         sys.stdout.write(prevlines + '\n' + status)
         sys.stdout.flush()
