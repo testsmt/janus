@@ -7,6 +7,8 @@ import os
 import subprocess
 import time
 import datetime
+import psutil
+import atexit
 
 Z3_NEW = '/local/home/maurob/impbased-fuzzing-experiments/solvers/z3/build/z3'
 Z3_OLD = '/local/home/maurob/impbased-fuzzing-experiments/solvers/z3-4.8.12/build/z3'
@@ -35,7 +37,8 @@ if __name__ == "__main__":
     num_additional_output_lines = 0
 
     def start_new_reducer(old_solver, new_solver, f):
-        return subprocess.Popen(['timeout', TIMEOUT_PER_REDUCER, 'ddsmt', '-j', str(NUM_PROCS_PER_REDUCER), '-v', '--ignore-output', f"./bugs/{f}", f"./reducing/{f}", './bin/check-regression.py', str(SOLVER_TIMEOUT), old_solver, new_solver], 
+        os.rename(f'./bugs/{f}', f'./bugs/{f}.orig')
+        return subprocess.Popen(['timeout', TIMEOUT_PER_REDUCER, 'ddsmt', '-j', str(NUM_PROCS_PER_REDUCER), '-v', '--ignore-output', f"./bugs/{f}.orig", f"./reducing/{f}", './bin/check-regression.py', str(SOLVER_TIMEOUT), old_solver, new_solver], 
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
         )
@@ -79,24 +82,52 @@ if __name__ == "__main__":
             rc = r.poll()
             if rc is not None:
                 os.rename(f"./reducing/{f}", f"./reduced/{f}")
-                os.rename(f"./bugs/{f}", f"./reduced/{f}.orig")
+                os.rename(f"./bugs/{f}.orig", f"./reduced/{f}.orig")
                 del rs[i]
                 reducible_bugs = list(filter(lambda f: f.endswith('.smt2') and ('regression-incompleteness-cvc5' in f or 'regression-incompleteness-z3' in f), os.listdir('bugs')))
                 if len(reducible_bugs) > 0:
                     bug = reducible_bugs[0]
-                    solver_old, solver_new = CVC5_OLD,CVC_NEW if 'regression-incompleteness-cvc5' in bug else Z3_OLD, Z3_NEW
-                    rs.append((bug, start_new_reducer(CVC5_OLD, CVC5_NEW, bug)))
+                    solver_old, solver_new = (CVC5_OLD,CVC_NEW) if 'regression-incompleteness-cvc5' in bug else (Z3_OLD, Z3_NEW)
+                    rs.append((bug, start_new_reducer(solver_old, solver_new, bug)))
+
+        reducible_bugs = list(filter(lambda f: f.endswith('.smt2') and ('regression-incompleteness-cvc5' in f or 'regression-incompleteness-z3' in f), os.listdir('bugs')))
+
+        for bug,_ in zip(reducible_bugs, range(len(rs), MAX_NUM_REDUCERS)):
+            solver_old, solver_new = (CVC5_OLD,CVC_NEW) if 'regression-incompleteness-cvc5' in bug else (Z3_OLD, Z3_NEW)
+            rs.append((bug, start_new_reducer(solver_old, solver_new, bug)))
 
     def print_status():
-        reduced = len(list(filter(lambda f: f.endswith('.smt2'), list(os.listdir('reduced')))))
-        bugs = len(
-            list(
-                filter(
-                    lambda f: f.endswith('.smt2') and not f.endswith('-previous.smt2'),
-                    os.listdir('bugs'),
-                )
-            )
-        )
+       
+        cvc5_regressions = 0
+        cvc5_implications = 0
+        z3_regressions = 0
+        z3_implications = 0
+
+        for f in filter(lambda f: f.endswith('.smt2') and not f.endswith('-previous.smt2'),os.listdir('bugs')):
+            if 'regression-incompleteness-cvc5' in f:
+                cvc5_regressions += 1
+            if 'regression-incompleteness-z3' in f:
+                z3_regressions += 1
+            if 'implication incompleteness-cvc5' in f:
+                cvc5_implications += 1
+            if 'implication incompleteness-z3' in f:
+                z3_implications += 1
+
+        cvc5_regressions_r = 0
+        cvc5_implications_r = 0
+        z3_regressions_r = 0
+        z3_implications_r = 0
+
+        for f in filter(lambda f: f.endswith('.smt2') and not f.endswith('-previous.smt2'),os.listdir('reduced')):
+            if 'regression-incompleteness-cvc5' in f:
+                cvc5_regressions_r += 1
+            if 'regression-incompleteness-z3' in f:
+                z3_regressions_r += 1
+            if 'implication incompleteness-cvc5' in f:
+                cvc5_implications_r += 1
+            if 'implication incompleteness-z3' in f:
+                z3_implications_r += 1
+
         running_j = 0
         for j in js:
             if j.poll() is None:
@@ -105,13 +136,19 @@ if __name__ == "__main__":
         for b, r in rs:
             if r.poll() is None:
                 running_r += 1
+
+        num_processes = len(psutil.Process().children())
+
         status_lines = list(map(lambda l: l.ljust(OUTPUT_WIDTH), [
         f"started: {start_time.strftime('%d/%m/%Y %H:%M:%S')}",
         f"uptime: {str(datetime.datetime.now() - start_time).split('.')[0]}",
+        f"number of processes: {num_processes}",
         f"Running instances: {running_j}/{MAX_NUM_INSTANCES}",
         f"Running reducers: {running_r}/{MAX_NUM_REDUCERS}",
-        f"Unreduced bugs: {bugs}",
-        f"Reduced bugs: {reduced}"
+        f"Unreduced regressions: {z3_regressions} (z3), {cvc5_regressions} (cvc5)",
+        f"Unreduced implications: {z3_implications} (z3), {cvc5_implications} (cvc5)",
+        f"Reduced regressions: {z3_regressions_r} (z3), {cvc5_regressions_r} (cvc5)",
+        f"Reduced implications: {z3_implications_r} (z3), {cvc5_implications_r} (cvc5)",
         ]))
         status = '\n'.join(status_lines) + '\n' + ('='*OUTPUT_WIDTH) + '\n'
         prevlines = "\033[F" * (status.count('\n') + 1)
@@ -124,6 +161,7 @@ if __name__ == "__main__":
         sys.exit(0)
 
     signal.signal(signal.SIGINT, cleanup)
+    atexit.register(killall)
 
     for _ in range(MAX_NUM_INSTANCES):
         js.append(start_new_instance())
@@ -131,8 +169,10 @@ if __name__ == "__main__":
     for bug in filter(lambda f: f.endswith('.smt2'), os.listdir('bugs')):
         if len(rs) >= MAX_NUM_REDUCERS:
             break
+        if 'regression-incompleteness-z3' in bug:
+            rs.append((bug, start_new_reducer(Z3_OLD, Z3_NEW, bug)))
         if 'regression-incompleteness-cvc5' in bug:
-            rs.append((bug, start_new_reducer('/local/home/maurob/impbased-fuzzing-experiments/solvers/cvc4-1.8 -q --strings-exp', '/local/home/maurob/impbased-fuzzing-experiments/solvers/cvc4/build/bin/cvc5 -q --strings-exp', bug)))
+            rs.append((bug, start_new_reducer(CVC5_OLD, CVC5_NEW, bug)))
 
     while True:
         print_status()
