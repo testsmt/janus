@@ -4,29 +4,28 @@ import time
 import signal
 import sys
 import os
+from pathlib import Path
 import subprocess
 import time
 import datetime
 import psutil
+import random
 import atexit
 
-Z3_NEW = '/local/home/maurob/impbased-fuzzing-experiments/solvers/z3/build/z3'
-Z3_OLD = '/local/home/maurob/impbased-fuzzing-experiments/solvers/z3-4.8.12/build/z3'
-CVC5_NEW = '/local/home/maurob/impbased-fuzzing-experiments/solvers/cvc4/build/bin/cvc5 -q --strings-exp'
-CVC5_OLD = '/local/home/maurob/impbased-fuzzing-experiments/solvers/cvc4-1.8 -q --strings-exp'
+path = Path(__file__)
+rootpath = str(path.parent.absolute().parent)
+sys.path.append(rootpath)
 
+from fuzzing_configuration import *
 SOLVERS = [f'{Z3_NEW} | {Z3_OLD}', f'{CVC5_NEW} | {CVC5_OLD}']
-SEED_DIR = '/local/home/maurob/impbased-fuzzing-experiments/semantic-fusion-seeds/QF_SLIA/sat'
-MAX_NUM_INSTANCES = 10
-MAX_NUM_REDUCERS = 5
-NUM_PROCS_PER_REDUCER = 10
-SOLVER_TIMEOUT = 10
-ITERATIONS = 300
-WALK_LENGTH = 20
-TIMEOUT_PER_INSTANCE = f"{str(ITERATIONS*SOLVER_TIMEOUT)}s"
-TIMEOUT_PER_REDUCER = '1h'
-RULE_SET = 'all'
-OUTPUT_WIDTH = 80
+
+
+def pick_random_file(from_dir):
+    next_step = subprocess.getoutput(f'/bin/ls -1 {from_dir} | shuf -n1')
+    if os.path.isdir(f"{from_dir}/{next_step}"):
+        return pick_random_file(f"{from_dir}/{next_step}")
+    else:
+        return f"{from_dir}/{next_step}"
 
 if __name__ == "__main__":
 
@@ -45,6 +44,17 @@ if __name__ == "__main__":
 
 
     def start_new_instance():
+
+        oracle = None
+
+        while oracle == None:
+            seed = pick_random_file(SEED_DIR)
+            set_status = subprocess.getoutput(f'grep "(set-info :status .*)" {seed}')
+            if '/sat/' in seed or 'sat' in set_status:
+                oracle = 'sat'
+            elif '/unsat/' in seed or 'unsat' in set_status:
+                oracle = 'unsat'
+
         return subprocess.Popen(
             [
                 'timeout',
@@ -59,9 +69,9 @@ if __name__ == "__main__":
                 '-wl',
                 str(WALK_LENGTH),
                 '-o',
-                'sat',
+                oracle,
                 ';'.join(SOLVERS),
-                SEED_DIR,
+                seed,
             ],
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
@@ -87,13 +97,13 @@ if __name__ == "__main__":
                 reducible_bugs = list(filter(lambda f: f.endswith('.smt2') and ('regression-incompleteness-cvc5' in f or 'regression-incompleteness-z3' in f), os.listdir('bugs')))
                 if len(reducible_bugs) > 0:
                     bug = reducible_bugs[0]
-                    solver_old, solver_new = (CVC5_OLD,CVC_NEW) if 'regression-incompleteness-cvc5' in bug else (Z3_OLD, Z3_NEW)
+                    solver_old, solver_new = (CVC5_OLD,CVC5_NEW) if 'regression-incompleteness-cvc5' in bug else (Z3_OLD, Z3_NEW)
                     rs.append((bug, start_new_reducer(solver_old, solver_new, bug)))
 
         reducible_bugs = list(filter(lambda f: f.endswith('.smt2') and ('regression-incompleteness-cvc5' in f or 'regression-incompleteness-z3' in f), os.listdir('bugs')))
 
         for bug,_ in zip(reducible_bugs, range(len(rs), MAX_NUM_REDUCERS)):
-            solver_old, solver_new = (CVC5_OLD,CVC_NEW) if 'regression-incompleteness-cvc5' in bug else (Z3_OLD, Z3_NEW)
+            solver_old, solver_new = (CVC5_OLD,CVC5_NEW) if 'regression-incompleteness-cvc5' in bug else (Z3_OLD, Z3_NEW)
             rs.append((bug, start_new_reducer(solver_old, solver_new, bug)))
 
     def print_status():
