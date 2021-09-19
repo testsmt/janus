@@ -1,7 +1,7 @@
-Z3_NEW = '/local/home/maurob/impbased-fuzzing-experiments/solvers/z3/build/z3'
-Z3_OLD = '/local/home/maurob/impbased-fuzzing-experiments/solvers/z3-4.8.12/build/z3'
-CVC5_NEW = '/local/home/maurob/impbased-fuzzing-experiments/solvers/cvc4/build/bin/cvc5 -q --strings-exp'
-CVC5_OLD = '/local/home/maurob/impbased-fuzzing-experiments/solvers/cvc4-1.8 -q --strings-exp'
+Z3_NEW = '/local/home/maurob/impbased-fuzzing-experiments/solvers/z3/build/z3 -smt2'
+Z3_OLD = '/local/home/maurob/impbased-fuzzing-experiments/solvers/z3-4.8.12/build/z3 -smt2'
+CVC5_NEW = '/local/home/maurob/impbased-fuzzing-experiments/solvers/cvc4/build/bin/cvc5 -q --strings-exp --lang=smt2'
+CVC5_OLD = '/local/home/maurob/impbased-fuzzing-experiments/solvers/cvc4-1.8 -q --strings-exp --lang=smt2'
 
 SEED_DIR = '/local/home/maurob/impbased-fuzzing-experiments/semantic-fusion-seeds/'
 MAX_NUM_INSTANCES = 40
