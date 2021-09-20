@@ -431,7 +431,7 @@ if __name__ == "__main__":
     # Create empty mock.smt2, set fuzzer opts
     FN = "tmp/mock.smt2"
     create_mocksmt2(FN)
-    OPTS = "-i 1 "
+    OPTS = "-i 1 -o sat "
     test_crash_list()
     print()
     test_ignore_list()

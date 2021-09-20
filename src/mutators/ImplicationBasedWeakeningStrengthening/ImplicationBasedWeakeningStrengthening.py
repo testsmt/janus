@@ -461,7 +461,7 @@ class ImplicationBasedWeakeningStrengthening(Mutator):
 
         self.custom_rule_set_3 = [NumberRelationShiftSkewed()]
 
-        if args.rule_set:
+        if args.rule_set and not args.rule_set == "all":
             self.rules = getattr(self, args.rule_set)
         else:
             self.rules = (

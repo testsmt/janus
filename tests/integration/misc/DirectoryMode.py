@@ -61,7 +61,7 @@ def get_cvc4():
 
 
 def get_z3():
-    if not Path("tmp/z3-4.8.10/bin/z3").is_file():
+    if not Path("tmp/z3-4.8.10-x64-ubuntu-18.04/bin/z3").is_file():
         z3_link = "https://github.com/Z3Prover/z3/releases/download/z3-4.8.10/z3-4.8.10-x64-ubuntu-18.04.zip"
         os.system("wget " + z3_link)
         os.system("unzip z3-4.8.10-x64-ubuntu-18.04.zip -d tmp/")
@@ -80,7 +80,9 @@ z3 = get_z3()
 first_config = z3 + " model_validate=true"
 second_config = cvc4 + " --check-models --produce-models --incremental -q"
 mock_benchmarks = str(os.path.dirname(os.path.realpath(__file__))) + "/mock_benchmarks"
-out, cmd = run_janus(first_config, second_config, mock_benchmarks, "", TIME_LIMIT)
+out, cmd = run_janus(
+    first_config, second_config, mock_benchmarks, "-o sat ", TIME_LIMIT
+)
 if "3 seeds processed, 1 valid, 2 invalid" not in out:
     print("An error occurred.", flush=True)
     print("cmd", cmd)

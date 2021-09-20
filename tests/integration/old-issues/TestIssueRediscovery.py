@@ -77,7 +77,7 @@ seeds = str(os.path.dirname(os.path.realpath(__file__))) + "/seeds"
 
 # https://github.com/Z3Prover/z3/issues/5491
 print("Retesting z3#5491...")
-out = subprocess.getoutput(f"./bin/janus  {z3_4_8_10} {seeds}/z3-5491-seed.smt2")
+out = subprocess.getoutput(f"./bin/janus -o sat {z3_4_8_10} {seeds}/z3-5491-seed.smt2")
 if "Detected implication incompleteness." not in out:
     exit(1)
 print("Successfully rediscovered.")
@@ -85,7 +85,7 @@ print("Successfully rediscovered.")
 print("Retesting z3#5390...")
 # https://github.com/Z3Prover/z3/issues/5390
 out = subprocess.getoutput(
-    f"./bin/janus '{z3_4_8_12} | {z3_4_8_10}' {seeds}/z3-5390-seed.smt2"
+    f"./bin/janus -o sat '{z3_4_8_12} | {z3_4_8_10}' {seeds}/z3-5390-seed.smt2"
 )
 if "Detected regression incompleteness." not in out:
     exit(1)
