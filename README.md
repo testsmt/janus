@@ -8,9 +8,9 @@ Janus is a testing tool for SMT solvers like
 and
 [CVC5](https://www.github.com/z3prover/z3),
 focusing on *incompleteness bugs*.
-It mutates SMT-LIB formulas in a satisfiability-preserving way, i.e. a (un)satisfiable seed formula produces mutants which are (un)satisfiable by construction.
+It mutates SMT-LIB formulas in a satisfiability-preserving way, i.e. given a (un)satisfiable seed formula it produces mutated formulas which are (un)satisfiable by construction.
 The codebase is based on a fork of the SMT solver testing framework [YinYang](https://www.github.com/testsmt/yinyang),
-developed as part of Mauro Bringolf's master thesis at ETH Zurich.
+developed as part of Mauro Bringolf's master thesis with the [AST Lab](https://ast.ethz.ch/) at ETH Zurich.
 
 ## Usage
 
