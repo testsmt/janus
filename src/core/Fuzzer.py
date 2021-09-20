@@ -370,19 +370,20 @@ class Fuzzer:
         except Exception:
             logging.error("error: couldn't copy scratchfile to bugfolder.")
             exit(ERR_EXHAUSTED_DISK)
-        logpath = "%s/%s-%s-%s-%s.output" % (
-            self.args.bugsfolder,
-            bugtype,
-            plain_cli,
-            escape(self.currentseeds),
-            random_string(),
-        )
-        with open(logpath, "w") as log:
-            log.write("command: " + cli + "\n")
-            log.write("stderr:\n")
-            log.write(stderr)
-            log.write("stdout:\n")
-            log.write(stdout)
+        if previous_mutant:
+            logpath = "%s/%s-%s-%s-%s.output" % (
+                self.args.bugsfolder,
+                bugtype,
+                plain_cli,
+                escape(self.currentseeds),
+                random_string(),
+            )
+            with open(logpath, "w") as log:
+                log.write("command: " + cli + "\n")
+                log.write("stderr:\n")
+                log.write(stderr)
+                log.write("stdout:\n")
+                log.write(stdout)
         return report
 
     def print_stats(self):

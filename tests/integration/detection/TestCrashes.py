@@ -70,7 +70,7 @@ def test_crash_list(msg, fn):
     create_mocksolver_msg(msg, solver)
     first_config = os.path.abspath(solver)
     second_config = os.path.abspath(solver)
-    opts = "-i 1"
+    opts = "-i 1 -o sat "
     crash, cmd = call_fuzzer(first_config, second_config, fn, opts)
 
     if crash != 1:
