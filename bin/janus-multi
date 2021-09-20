@@ -19,6 +19,7 @@ sys.path.append(rootpath)
 from fuzzing_configuration import *
 
 SOLVERS = [f'{Z3_NEW} | {Z3_OLD}', f'{CVC5_NEW} | {CVC5_OLD}']
+OUTPUT_WIDTH = 80
 
 
 def pick_random_file(from_dir):
