@@ -97,7 +97,13 @@ if __name__ == "__main__":
         for j in js:
             j.terminate()
         for b, r in rs:
+            # Make bug eligible for reduction again by renaming the trigger file back to '.smt2'
+            # When the fuzzer is restarted afterwards, the 
             r.terminate()
+            if os.path.exists(f"./bugs/{b}.orig"):
+                os.rename(f"./bugs/{b}.orig", f"./bugs/{b}")
+            if os.path.exists(f"./reducing/{b}"):
+                os.remove(f"./reducing/{b}")
 
     def replace_finished():
         for i, j in enumerate(js):
@@ -152,8 +158,14 @@ if __name__ == "__main__":
 
         cvc5_regressions = 0
         cvc5_implications = 0
+        cvc5_unsound = 0
+        cvc5_crash = 0
+        cvc5_segfault = 0
         z3_regressions = 0
         z3_implications = 0
+        z3_unsound = 0
+        z3_crash = 0
+        z3_segfault = 0
 
         for f in filter(
             lambda f: f.endswith('.smt2') and not f.endswith('-previous.smt2'),
@@ -167,6 +179,18 @@ if __name__ == "__main__":
                 cvc5_implications += 1
             if 'implication incompleteness-z3' in f:
                 z3_implications += 1
+            if 'incorrect-z3' in f:
+                z3_unsound += 1
+            if 'incorrect-cvc5' in f:
+                cvc5_unsound += 1
+            if 'crash-z3' in f:
+                z3_crash += 1
+            if 'crash-cvc5' in f:
+                cvc5_crash += 1
+            if 'segfault-z3' in f:
+                z3_segfault += 1
+            if 'segfault-cvc5' in f:
+                cvc5_segfault += 1
 
         cvc5_regressions_r = 0
         cvc5_implications_r = 0
@@ -206,6 +230,9 @@ if __name__ == "__main__":
                     f"number of processes: {num_processes}",
                     f"Running instances: {running_j}/{MAX_NUM_INSTANCES}",
                     f"Running reducers: {running_r}/{MAX_NUM_REDUCERS}",
+                    f"Unreduced segfaults: {z3_segfault} (z3), {cvc5_segfault} (cvc5)",
+                    f"Unreduced crashes: {z3_crash} (z3), {cvc5_crash} (cvc5)",
+                    f"Unreduced unsoundnesses: {z3_unsound} (z3), {cvc5_unsound} (cvc5)",
                     f"Unreduced regressions: {z3_regressions} (z3), {cvc5_regressions} (cvc5)",
                     f"Unreduced implications: {z3_implications} (z3), {cvc5_implications} (cvc5)",
                     f"Reduced regressions: {z3_regressions_r} (z3), {cvc5_regressions_r} (cvc5)",
