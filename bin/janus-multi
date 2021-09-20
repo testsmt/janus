@@ -176,9 +176,9 @@ if __name__ == "__main__":
                 cvc5_regressions += 1
             if 'regression-incompleteness-z3' in f:
                 z3_regressions += 1
-            if 'implication incompleteness-cvc5' in f:
+            if 'implication-incompleteness-cvc5' in f:
                 cvc5_implications += 1
-            if 'implication incompleteness-z3' in f:
+            if 'implication-incompleteness-z3' in f:
                 z3_implications += 1
             if 'incorrect-z3' in f:
                 z3_unsound += 1
@@ -206,9 +206,9 @@ if __name__ == "__main__":
                 cvc5_regressions_r += 1
             if 'regression-incompleteness-z3' in f:
                 z3_regressions_r += 1
-            if 'implication incompleteness-cvc5' in f:
+            if 'implication-incompleteness-cvc5' in f:
                 cvc5_implications_r += 1
-            if 'implication incompleteness-z3' in f:
+            if 'implication-incompleteness-z3' in f:
                 z3_implications_r += 1
 
         running_j = 0

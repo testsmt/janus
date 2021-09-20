@@ -320,7 +320,7 @@ class Fuzzer:
                         self.statistic.implication_incompleteness += 1
                         self.report(
                             scratchfile,
-                            "implication incompleteness",
+                            "implication-incompleteness",
                             solver_cli,
                             self.current_rule,
                             stderr,
@@ -348,19 +348,20 @@ class Fuzzer:
     def report(self, scratchfile, bugtype, cli, stdout, stderr, previous_mutant=None):
         plain_cli = plain(cli)
         # format: <solver><{crash,wrong,invalid_model}><seed>.<random-str>.smt2
+        rand_appendix = random_string()
         report = "%s/%s-%s-%s-%s.smt2" % (
             self.args.bugsfolder,
             bugtype,
             plain_cli,
             escape(self.currentseeds),
-            random_string(),
+            rand_appendix,
         )
         report_previous = "%s/%s-%s-%s-%s-previous.smt2" % (
             self.args.bugsfolder,
             bugtype,
             plain_cli,
             escape(self.currentseeds),
-            random_string(),
+            rand_appendix,
         )
         try:
             shutil.copy(scratchfile, report)
