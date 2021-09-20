@@ -98,7 +98,7 @@ if __name__ == "__main__":
             j.terminate()
         for b, r in rs:
             # Make bug eligible for reduction again by renaming the trigger file back to '.smt2'
-            # When the fuzzer is restarted afterwards, the 
+            # When the fuzzer is restarted afterwards, the
             r.terminate()
             if os.path.exists(f"./bugs/{b}.orig"):
                 os.rename(f"./bugs/{b}.orig", f"./bugs/{b}")
