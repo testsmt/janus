@@ -142,8 +142,7 @@ class PolymorphicHomomorphism(Implication):
     TODO: Update docs with Π, rs, ss
     """
 
-    def __init__(self, R, rs, S, ss, f, name, Π=None, n=None, P=None, formulas=None):
-        self.name = name
+    def __init__(self, R, rs, S, ss, f, Π=None, n=None, P=None, formulas=None):
         self.R = R
         self.S = S
         self.sortMap = {r: s for r, s in zip(rs, ss)}
@@ -249,16 +248,15 @@ class PolymorphicHomomorphism(Implication):
 
 
 class Homomorphism(PolymorphicHomomorphism):
-    def __init__(self, R, r, S, s, f, name, Π=None, n=None, P=None, formulas=None):
+    def __init__(self, R, r, S, s, f, Π=None, n=None, P=None, formulas=None):
         super().__init__(
-            R=R, rs=[r], S=S, ss=[s], f=f, name=name, Π=Π, n=n, P=P, formulas=formulas
+            R=R, rs=[r], S=S, ss=[s], f=f, Π=Π, n=n, P=P, formulas=formulas
         )
 
 
 class OperatorReplacement(PolymorphicHomomorphism):
     def __init__(self, opWeak, opStrong, supportedSorts, reverseArguments=False):
         Π = reversed if reverseArguments else None
-        name = f"OPREP[{opWeak}][{opStrong}][{str(supportedSorts)}]"
         super().__init__(
             S=opWeak,
             R=opStrong,
@@ -266,7 +264,6 @@ class OperatorReplacement(PolymorphicHomomorphism):
             ss=supportedSorts,
             f="__ID__",
             Π=Π,
-            name=name,
         )
 
     def is_applicable(self, expression, direction):
@@ -275,10 +272,6 @@ class OperatorReplacement(PolymorphicHomomorphism):
 
 
 class NumberRelationShiftSkewed(Implication):
-    def __init__(self):
-        self.name = "NUMRELSHIFTSKEWED"
-        super().__init__()
-
     def matches_LHS(self, expression):
         return (
             expression.is_operator(">", ">=", "<", "<=")
@@ -443,10 +436,6 @@ class NumberRelationShiftSkewed(Implication):
 
 
 class NumberRelationShiftBalanced(Equivalence):
-    def __init__(self):
-        self.name = "NUMRELSHIFTBALANCED"
-        super().__init__()
-
     def matches_LHS(self, expression):
         return (
             expression.is_operator(">", ">=", "=", "<", "<=", "distinct")
@@ -477,10 +466,6 @@ class NumberRelationShiftBalanced(Equivalence):
 
 
 class QuantifierSwap(Implication):
-    def __init__(self):
-        self.name = "QUANTSWP"
-        super().__init__()
-
     def matches_LHS(self, expression):
         return expression.quantifier == "forall"
 
@@ -495,10 +480,6 @@ class QuantifierSwap(Implication):
 
 
 class UninterpretedFunctionEquality(Implication):
-    def __init__(self):
-        self.name = "UNINFUNEQ"
-        super().__init__()
-
     def matches_LHS(self, expression):
         # TODO For cases with a sensible way of finding a random function to apply on the RHS we could do this case too
         # Probably most interesting if we take the AST-with-holes approach.
@@ -613,10 +594,6 @@ class StringEqualityDistinctAppend(Implication):
 
 
 class StringPrefixToExists(Implication):
-    def __init__(self):
-        self.name = "STRPRETOEX"
-        super().__init__()
-
     def matches_LHS(self, expression):
         return expression.is_operator("str.prefixof")
 
@@ -713,9 +690,6 @@ class StringContainsToExists(Implication):
 
 
 class OrToIte(Implication):
-    def __init__(self):
-        self.name = "ORTOITE"
-
     def matches_LHS(self, expression):
         return expression.is_operator("or") and expression.has_at_least_n_subterms(2)
 
@@ -737,9 +711,6 @@ class OrToIte(Implication):
 
 
 class IteToImpTrue(Implication):
-    def __init__(self):
-        self.name = "ITETOIMPTRUE"
-
     def matches_LHS(self, expression):
         return (
             expression.is_operator("ite")
@@ -754,9 +725,6 @@ class IteToImpTrue(Implication):
 
 
 class IteToImpFalse(Implication):
-    def __init__(self):
-        self.name = "ITETOIMPFALSE"
-
     def matches_LHS(self, expression):
         return (
             expression.is_operator("ite")
@@ -771,10 +739,6 @@ class IteToImpFalse(Implication):
 
 
 class ImpToIteTrue(Implication):
-    def __init__(self):
-        self.name = "IMPTOITETRUE"
-        super().__init__()
-
     def matches_LHS(self, expression):
         return expression.is_operator(
             "implies", "=>"
@@ -794,9 +758,6 @@ class ImpToIteTrue(Implication):
 
 
 class ImpToIteFalse(Implication):
-    def __init__(self):
-        self.name = "IMPTOITEFALSE"
-
     def matches_LHS(self, expression):
         return expression.is_operator(
             "implies", "=>"
@@ -821,10 +782,6 @@ class ImpToIteFalse(Implication):
 
 
 class ImpLiftToForall(Implication):
-    def __init__(self):
-        self.name = "IMPLIFTTOFORALL"
-        super().__init__()
-
     def matches_LHS(self, expression):
         return expression.is_operator(
             "implies", "=>"
@@ -924,10 +881,6 @@ class DropConjunct(Implication):
 
 
 class AddDisjunct(Implication):
-    def __init__(self, formula_pool=None):
-        self.name = "ADDDISJ"
-        super().__init__(formula_pool)
-
     def matches_LHS(self, expression):
         return True
 
@@ -968,10 +921,6 @@ class OrToImp(Implication):
 
 
 class StringLeqApp(Implication):
-    def __init__(self, formula_pool=None):
-        self.name = "STRLEQAPP"
-        super().__init__(formula_pool)
-
     def matches_LHS(self, expression):
         return expression.is_operator("str.<=")
 
@@ -985,9 +934,6 @@ class StringLeqApp(Implication):
 
 
 class StringLeqSubstr(Implication):
-    def __init__(self, formula_pool=None):
-        super().__init__(formula_pool)
-
     def matches_LHS(self, expression):
         return expression.is_operator("str.<=")
 

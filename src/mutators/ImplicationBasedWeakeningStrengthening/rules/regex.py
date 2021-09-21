@@ -33,10 +33,6 @@ from src.mutators.ImplicationBasedWeakeningStrengthening.common import *
 
 
 class RegexRule(Rule):
-    def __init__(self, name, formula_pool=None):
-        self.name = f"REGEXMOD[{name}]"
-        super().__init__(formula_pool)
-
     def is_applicable(self, expression, direction):
         return expression.op == "str.in_re" and self.is_applicable_regex(
             expression.subterms[1], direction

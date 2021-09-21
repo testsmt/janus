@@ -33,39 +33,9 @@ from src.parsing.Parse import *
 from src.parsing.Ast import Assert
 
 from src.mutators.ImplicationBasedWeakeningStrengthening.common import *
-from src.mutators.ImplicationBasedWeakeningStrengthening.rules.regex import *
-from src.mutators.ImplicationBasedWeakeningStrengthening.rules.lhs_rhs import (
-    OperatorReplacement,
-    RelationPreservingAutomorphism,
-    Homomorphism,
-    PolymorphicHomomorphism,
-    NumberRelationShiftSkewed,
-    NumberRelationShiftBalanced,
-    QuantifierSwap,
-    UninterpretedFunctionEquality,
-    StringContainsLength,
-    StringPrefixLength,
-    StringSuffixLength,
-    StringEqualityPrefixSuffix,
-    StringEqualityPrefixPrefix,
-    StringEqualitySuffixSuffix,
-    StringContainsPrefixSuffix,
-    StringEqualityDistinctAppend,
-    StringPrefixToExists,
-    StringSuffixToExists,
-    StringLeqApp,
-    StringLeqSubstr,
-    RegexAppend,
-    OrToIte,
-    IteToImpTrue,
-    IteToImpFalse,
-    ImpToIteTrue,
-    ImpToIteFalse,
-    ImpLiftToForall,
-    InstantiateQuantifier,
-    OrToImp,
-    AddDisjunct,
-    DropConjunct,
+from src.mutators.ImplicationBasedWeakeningStrengthening.rules.rule_set import (
+    RuleSet,
+    parseRuleSet,
 )
 
 
@@ -76,30 +46,12 @@ class ImplicationBasedWeakeningStrengthening(Mutator):
         assert args.oracle in ["sat", "unsat"]
         self.oracle = SAT if args.oracle == "sat" else UNSAT
 
-        self.custom_rule_set_1 = (
-            self.regex_rules + self.string_rules + [InstantiateQuantifier()]
-        )
+        self.rules = parseRuleSet(args.rule_set)
 
-        self.custom_rule_set_2 = self.regex_rules + [InstantiateQuantifier()]
-
-        self.custom_rule_set_3 = [NumberRelationShiftSkewed()]
-
-        if args.rule_set and not args.rule_set == "all":
-            self.rules = getattr(self, args.rule_set)
-        else:
-            self.rules = (
-                self.string_rules
-                + self.number_relation_rules
-                + self.core_logic_rules
-                + self.regex_rules
-                + self.relation_preserving_automorphisms
-                + self.homomorphisms
-            )
-
+        formulas = copy.deepcopy(self.get_formulas(script))
         for rule in self.rules:
-            rule.glbls = glbls
-            formulas = self.get_formulas(script)
-            rule.formula_pool = copy.deepcopy(formulas)
+            RuleSet[rule].glbls = glbls
+            RuleSet[rule].formula_pool = formulas
 
     """
     Returns a list of AST node references paired with their parity
@@ -167,7 +119,8 @@ class ImplicationBasedWeakeningStrengthening(Mutator):
 
         if logging.getLogger().isEnabledFor(logging.INFO):
             applicableRules = 0
-            for rule in self.rules:
+            for rule_name in self.rules:
+                rule = RuleSet[rule_name]
                 candidates = []
                 for formula in formulas:
                     candidates.extend(self.get_candidates(formula, rule, 1))
@@ -178,7 +131,8 @@ class ImplicationBasedWeakeningStrengthening(Mutator):
 
         random.shuffle(self.rules)
 
-        for rule in self.rules:
+        for rule_name in self.rules:
+            rule = RuleSet[rule_name]
 
             candidates = []
 
@@ -193,8 +147,8 @@ class ImplicationBasedWeakeningStrengthening(Mutator):
                 to_replace, parity = random.choice(candidates)
                 rule.apply(to_replace, parity * self.oracle)
                 number_of_modifications_done += 1
-                logging.info(f"Chosen rule: {rule.name}")
-                chosen_rule = rule.name
+                logging.info(f"Chosen rule: {rule_name}")
+                chosen_rule = rule_name
 
                 # We successfully modified the script
                 success = True

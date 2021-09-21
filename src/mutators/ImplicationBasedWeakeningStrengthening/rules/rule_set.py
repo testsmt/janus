@@ -21,9 +21,9 @@
 # SOFTWARE.
 
 from typing import Dict
-from src.mutator.ImplicationBasedWeakeningStrengthening.Rule import Rule
-from src.mutator.ImplicationBasedWeakeningStrengthening.rules.lhs_rhs import *
-from src.mutator.ImplicationBasedWeakeningStrengthening.rules.lhs_rhs import *
+from src.mutators.ImplicationBasedWeakeningStrengthening.Rule import Rule
+from src.mutators.ImplicationBasedWeakeningStrengthening.rules.lhs_rhs import *
+from src.mutators.ImplicationBasedWeakeningStrengthening.rules.regex import *
 
 RuleSet: Dict[str, Rule] = {
     'SUFFIXLEN': Homomorphism(
@@ -341,3 +341,22 @@ RuleSet: Dict[str, Rule] = {
         "String",
     ),
 }
+
+predefined_rule_set_names = {}
+
+# Returns a set of strings to be used as keys into 'RuleSet'
+def parseRuleSet(rule_set):
+    if not rule_set:
+        return set(RuleSet.keys())
+
+    rule_set = rule_set.strip()
+    if rule_set == 'all':
+        return set(RuleSet.keys())
+
+    if rule_set in predefined_rule_set_names:
+        return predefined_rule_set_names[rule_set]
+
+    if rule_set in RuleSet.keys():
+        return {rule_set}
+
+    raise Exception(f'Not a valid rule set: {rule_set}')
