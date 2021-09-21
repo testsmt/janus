@@ -527,10 +527,6 @@ class UninterpretedFunctionEquality(Implication):
 
 
 class StringEqualityPrefixSuffix(Implication):
-    def __init__(self):
-        self.name = "STREQPREFIXSUFFIX"
-        super().__init__()
-
     def matches_LHS(self, expression):
         return (
             expression.is_operator("=")
@@ -549,10 +545,6 @@ class StringEqualityPrefixSuffix(Implication):
 
 
 class StringEqualityPrefixPrefix(Equivalence):
-    def __init__(self):
-        self.name = "STREQPREFIXPREFIX"
-        super().__init__()
-
     def matches_LHS(self, expression):
         return (
             expression.is_operator("=")
@@ -571,10 +563,6 @@ class StringEqualityPrefixPrefix(Equivalence):
 
 
 class StringEqualitySuffixSuffix(Equivalence):
-    def __init__(self):
-        self.name = "STREQSUFFIXSUFFIX"
-        super().__init__()
-
     def matches_LHS(self, expression):
         return (
             expression.is_operator("=")
@@ -593,10 +581,6 @@ class StringEqualitySuffixSuffix(Equivalence):
 
 
 class StringContainsPrefixSuffix(Implication):
-    def __init__(self):
-        self.name = "STRCONTAINSPRESUF"
-        super().__init__()
-
     def matches_RHS(self, expression):
         return expression.is_operator("str.contains")
 
@@ -611,10 +595,6 @@ class StringContainsPrefixSuffix(Implication):
 
 
 class StringEqualityDistinctAppend(Implication):
-    def __init__(self):
-        self.name = "STREQDIST"
-        super().__init__()
-
     def matches_LHS(self, expression):
         return (
             expression.is_operator("=")
@@ -665,10 +645,6 @@ class StringPrefixToExists(Implication):
 
 
 class StringSuffixToExists(Implication):
-    def __init__(self):
-        self.name = "STRSUFTOEX"
-        super().__init__()
-
     def matches_LHS(self, expression):
         return expression.is_operator("str.suffixof")
 
@@ -708,9 +684,6 @@ class StringSuffixToExists(Implication):
 
 
 class StringContainsToExists(Implication):
-    def __init__(self):
-        self.name = "STRCONTOEX"
-
     def matches_LHS(self, expression):
         return expression.is_operator("str.contains")
 
@@ -873,10 +846,6 @@ class ImpLiftToForall(Implication):
 
 
 class InstantiateQuantifier(Implication):
-    def __init__(self, formula_pool=None):
-        self.name = "INSTQUANT"
-        super().__init__(formula_pool)
-
     def matches_LHS(self, expression):
         return expression.quantifier == "forall" and any(
             map(self.is_random_instantiatable, expression.quantified_vars[1])
@@ -920,10 +889,6 @@ class InstantiateQuantifier(Implication):
 
 
 class RegexAppend(Implication):
-    def __init__(self, formula_pool=None):
-        self.name = "REGEXAPP"
-        super().__init__(formula_pool)
-
     def matches_LHS(self, expression):
         return expression.op == "str.in_re"
 
@@ -935,10 +900,6 @@ class RegexAppend(Implication):
 
 
 class DropConjunct(Implication):
-    def __init__(self, formula_pool=None):
-        self.name = "DROPCONJ"
-        super().__init__(formula_pool)
-
     def matches_LHS(self, expression):
         return expression.is_operator("and") and expression.has_at_least_n_subterms(2)
 
@@ -991,9 +952,6 @@ class AddDisjunct(Implication):
 
 
 class OrToImp(Implication):
-    def __init__(self):
-        self.name = "ORTOIMP"
-
     def matches_LHS(self, expression):
         return expression.has_n_subterms(2) and expression.is_operator("or")
 
@@ -1028,7 +986,6 @@ class StringLeqApp(Implication):
 
 class StringLeqSubstr(Implication):
     def __init__(self, formula_pool=None):
-        self.name = "STRLEQSUBSTR"
         super().__init__(formula_pool)
 
     def matches_LHS(self, expression):
@@ -1071,29 +1028,11 @@ class StringLeqSubstr(Implication):
 # TODO move these instantiations directly into the generator
 
 
-def RelationPreservingAutomorphism(R, f, r, name):
+def RelationPreservingAutomorphism(R, f, r):
     """
     A relation preserving automorphism is a homomorphism f:r|R -> s|S with:
 
     * R = S
     * r = s
     """
-    return Homomorphism(R=R, r=r, S=R, s=r, f=f, name=name)
-
-
-def StringContainsLength():
-    return Homomorphism(
-        r="String", R="str.contains", s="Int", S=">=", f="str.len", name="CONTAINSLEN"
-    )
-
-
-def StringPrefixLength():
-    return Homomorphism(
-        r="String", R="str.prefixof", s="Int", S="<=", f="str.len", name="PREFIXLEN"
-    )
-
-
-def StringSuffixLength():
-    return Homomorphism(
-        r="String", R="str.suffixof", s="Int", S="<=", f="str.len", name="SUFFIXLEN"
-    )
+    return Homomorphism(R=R, r=r, S=R, s=r, f=f)

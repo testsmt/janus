@@ -100,9 +100,6 @@ class RegexOperatorReplacement(RegexRule):
 
 
 class Regex_add_free_union(RegexRule):
-    def __init__(self):
-        super().__init__("add_free_union")
-
     def is_applicable_regex(self, regex, direction):
         return True
 
@@ -129,9 +126,6 @@ class Regex_concat_to_option_power(RegexRule):
 
 
 class Regex_add_plus(RegexRule):
-    def __init__(self):
-        super().__init__("add_plus")
-
     def is_applicable_regex(self, regex, direction):
         return direction == WEAKENING
 
@@ -142,9 +136,6 @@ class Regex_add_plus(RegexRule):
 
 
 class Regex_add_opt(RegexRule):
-    def __init__(self):
-        super().__init__("add_opt")
-
     def is_applicable_regex(self, regex, direction):
         return direction == WEAKENING
 
@@ -155,9 +146,6 @@ class Regex_add_opt(RegexRule):
 
 
 class Regex_add_loop(RegexRule):
-    def __init__(self):
-        super().__init__("add_loop")
-
     def is_applicable_regex(self, regex, direction):
         return direction == WEAKENING
 
@@ -169,9 +157,6 @@ class Regex_add_loop(RegexRule):
 
 
 class Regex_inter_idempotent(RegexRule):
-    def __init__(self):
-        super().__init__("inter_idempotent")
-
     def is_applicable_regex(self, regex, _):
         return True
 
@@ -183,9 +168,6 @@ class Regex_inter_idempotent(RegexRule):
 
 
 class Regex_union_idempotent(RegexRule):
-    def __init__(self):
-        super().__init__("union_idempotent")
-
     def is_applicable_regex(self, regex, _):
         return True
 
@@ -197,9 +179,6 @@ class Regex_union_idempotent(RegexRule):
 
 
 class Regex_change_range(RegexRule):
-    def __init__(self, formula_pool=None):
-        super().__init__("change_range", formula_pool)
-
     def is_applicable_regex(self, regex, direction):
         return regex.op == "re.range" and self.is_random_instantiatable("String")
 
@@ -237,9 +216,6 @@ class Regex_change_range(RegexRule):
 
 
 class Regex_distribute_union_concat(RegexRule):
-    def __init__(self):
-        super().__init__("distribute_union_concat")
-
     def is_applicable_regex(self, regex, direction):
         return regex.op == "re.++" and any(
             map(lambda r: r.op == "re.union", regex.subterms)
