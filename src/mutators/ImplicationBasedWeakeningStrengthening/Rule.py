@@ -28,10 +28,6 @@ from src.parsing.Ast import StringConst, Const, Expr
 
 
 class Rule:
-
-    # Set this to True if rule can apply to non-boolean terms too
-    nonBool = False
-
     def __init__(self, formula_pool=None):
         if not formula_pool:
             self.formula_pool = []
