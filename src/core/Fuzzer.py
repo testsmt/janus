@@ -377,7 +377,7 @@ class Fuzzer:
                 bugtype,
                 plain_cli,
                 escape(self.currentseeds),
-                random_string(),
+                rand_appendix,
             )
             with open(logpath, "w") as log:
                 log.write("command: " + cli + "\n")
