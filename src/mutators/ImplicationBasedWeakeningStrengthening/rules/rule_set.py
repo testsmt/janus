@@ -93,12 +93,17 @@ def makeRuleSet(rule_set: str):
         rule_set = rule_set.strip()
         if rule_set == 'all':
             rule_names = ALL_RULES.keys()
-
         elif rule_set in predefined_rule_set_names:
             rule_names = predefined_rule_set_names[rule_set]
-
         elif rule_set in ALL_RULES.keys():
             rule_names = [rule_set]
+        elif "," in rule_set:
+            rule_names = set(map(lambda r: r.strip(), rule_set.split(",")))
+            # Check that only valid rule names have been provided
+            if not rule_names.issubset(ALL_RULES.keys()):
+                raise Exception(
+                    f'Specified rule set contains invalid rule names: {str(rule_names - ALL_RULES.keys())}'
+                )
         else:
             raise Exception(f'Not a valid rule set: {rule_set}')
 
