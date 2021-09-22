@@ -142,8 +142,7 @@ class PolymorphicHomomorphism(Implication):
     TODO: Update docs with Π, rs, ss
     """
 
-    def __init__(self, R, rs, S, ss, f, name, Π=None, n=None, P=None, formulas=None):
-        self.name = name
+    def __init__(self, R, rs, S, ss, f, Π=None, n=None, P=None, formulas=None):
         self.R = R
         self.S = S
         self.sortMap = {r: s for r, s in zip(rs, ss)}
@@ -249,16 +248,15 @@ class PolymorphicHomomorphism(Implication):
 
 
 class Homomorphism(PolymorphicHomomorphism):
-    def __init__(self, R, r, S, s, f, name, Π=None, n=None, P=None, formulas=None):
+    def __init__(self, R, r, S, s, f, Π=None, n=None, P=None, formulas=None):
         super().__init__(
-            R=R, rs=[r], S=S, ss=[s], f=f, name=name, Π=Π, n=n, P=P, formulas=formulas
+            R=R, rs=[r], S=S, ss=[s], f=f, Π=Π, n=n, P=P, formulas=formulas
         )
 
 
 class OperatorReplacement(PolymorphicHomomorphism):
-    def __init__(self, opWeak, opStrong, supportedSorts, reverseArguments=False):
+    def __init__(self, opStrong, opWeak, supportedSorts, reverseArguments=False):
         Π = reversed if reverseArguments else None
-        name = f"OPREP[{opWeak}][{opStrong}][{str(supportedSorts)}]"
         super().__init__(
             S=opWeak,
             R=opStrong,
@@ -266,7 +264,6 @@ class OperatorReplacement(PolymorphicHomomorphism):
             ss=supportedSorts,
             f="__ID__",
             Π=Π,
-            name=name,
         )
 
     def is_applicable(self, expression, direction):
@@ -275,10 +272,6 @@ class OperatorReplacement(PolymorphicHomomorphism):
 
 
 class NumberRelationShiftSkewed(Implication):
-    def __init__(self):
-        self.name = "NUMRELSHIFTSKEWED"
-        super().__init__()
-
     def matches_LHS(self, expression):
         return (
             expression.is_operator(">", ">=", "<", "<=")
@@ -443,10 +436,6 @@ class NumberRelationShiftSkewed(Implication):
 
 
 class NumberRelationShiftBalanced(Equivalence):
-    def __init__(self):
-        self.name = "NUMRELSHIFTBALANCED"
-        super().__init__()
-
     def matches_LHS(self, expression):
         return (
             expression.is_operator(">", ">=", "=", "<", "<=", "distinct")
@@ -477,10 +466,6 @@ class NumberRelationShiftBalanced(Equivalence):
 
 
 class QuantifierSwap(Implication):
-    def __init__(self):
-        self.name = "QUANTSWP"
-        super().__init__()
-
     def matches_LHS(self, expression):
         return expression.quantifier == "forall"
 
@@ -495,10 +480,6 @@ class QuantifierSwap(Implication):
 
 
 class UninterpretedFunctionEquality(Implication):
-    def __init__(self):
-        self.name = "UNINFUNEQ"
-        super().__init__()
-
     def matches_LHS(self, expression):
         # TODO For cases with a sensible way of finding a random function to apply on the RHS we could do this case too
         # Probably most interesting if we take the AST-with-holes approach.
@@ -527,10 +508,6 @@ class UninterpretedFunctionEquality(Implication):
 
 
 class StringEqualityPrefixSuffix(Implication):
-    def __init__(self):
-        self.name = "STREQPREFIXSUFFIX"
-        super().__init__()
-
     def matches_LHS(self, expression):
         return (
             expression.is_operator("=")
@@ -549,10 +526,6 @@ class StringEqualityPrefixSuffix(Implication):
 
 
 class StringEqualityPrefixPrefix(Equivalence):
-    def __init__(self):
-        self.name = "STREQPREFIXPREFIX"
-        super().__init__()
-
     def matches_LHS(self, expression):
         return (
             expression.is_operator("=")
@@ -571,10 +544,6 @@ class StringEqualityPrefixPrefix(Equivalence):
 
 
 class StringEqualitySuffixSuffix(Equivalence):
-    def __init__(self):
-        self.name = "STREQSUFFIXSUFFIX"
-        super().__init__()
-
     def matches_LHS(self, expression):
         return (
             expression.is_operator("=")
@@ -593,10 +562,6 @@ class StringEqualitySuffixSuffix(Equivalence):
 
 
 class StringContainsPrefixSuffix(Implication):
-    def __init__(self):
-        self.name = "STRCONTAINSPRESUF"
-        super().__init__()
-
     def matches_RHS(self, expression):
         return expression.is_operator("str.contains")
 
@@ -611,10 +576,6 @@ class StringContainsPrefixSuffix(Implication):
 
 
 class StringEqualityDistinctAppend(Implication):
-    def __init__(self):
-        self.name = "STREQDIST"
-        super().__init__()
-
     def matches_LHS(self, expression):
         return (
             expression.is_operator("=")
@@ -633,10 +594,6 @@ class StringEqualityDistinctAppend(Implication):
 
 
 class StringPrefixToExists(Implication):
-    def __init__(self):
-        self.name = "STRPRETOEX"
-        super().__init__()
-
     def matches_LHS(self, expression):
         return expression.is_operator("str.prefixof")
 
@@ -665,10 +622,6 @@ class StringPrefixToExists(Implication):
 
 
 class StringSuffixToExists(Implication):
-    def __init__(self):
-        self.name = "STRSUFTOEX"
-        super().__init__()
-
     def matches_LHS(self, expression):
         return expression.is_operator("str.suffixof")
 
@@ -708,9 +661,6 @@ class StringSuffixToExists(Implication):
 
 
 class StringContainsToExists(Implication):
-    def __init__(self):
-        self.name = "STRCONTOEX"
-
     def matches_LHS(self, expression):
         return expression.is_operator("str.contains")
 
@@ -740,9 +690,6 @@ class StringContainsToExists(Implication):
 
 
 class OrToIte(Implication):
-    def __init__(self):
-        self.name = "ORTOITE"
-
     def matches_LHS(self, expression):
         return expression.is_operator("or") and expression.has_at_least_n_subterms(2)
 
@@ -764,9 +711,6 @@ class OrToIte(Implication):
 
 
 class IteToImpTrue(Implication):
-    def __init__(self):
-        self.name = "ITETOIMPTRUE"
-
     def matches_LHS(self, expression):
         return (
             expression.is_operator("ite")
@@ -781,9 +725,6 @@ class IteToImpTrue(Implication):
 
 
 class IteToImpFalse(Implication):
-    def __init__(self):
-        self.name = "ITETOIMPFALSE"
-
     def matches_LHS(self, expression):
         return (
             expression.is_operator("ite")
@@ -798,10 +739,6 @@ class IteToImpFalse(Implication):
 
 
 class ImpToIteTrue(Implication):
-    def __init__(self):
-        self.name = "IMPTOITETRUE"
-        super().__init__()
-
     def matches_LHS(self, expression):
         return expression.is_operator(
             "implies", "=>"
@@ -821,9 +758,6 @@ class ImpToIteTrue(Implication):
 
 
 class ImpToIteFalse(Implication):
-    def __init__(self):
-        self.name = "IMPTOITEFALSE"
-
     def matches_LHS(self, expression):
         return expression.is_operator(
             "implies", "=>"
@@ -848,10 +782,6 @@ class ImpToIteFalse(Implication):
 
 
 class ImpLiftToForall(Implication):
-    def __init__(self):
-        self.name = "IMPLIFTTOFORALL"
-        super().__init__()
-
     def matches_LHS(self, expression):
         return expression.is_operator(
             "implies", "=>"
@@ -873,10 +803,6 @@ class ImpLiftToForall(Implication):
 
 
 class InstantiateQuantifier(Implication):
-    def __init__(self, formula_pool=None):
-        self.name = "INSTQUANT"
-        super().__init__(formula_pool)
-
     def matches_LHS(self, expression):
         return expression.quantifier == "forall" and any(
             map(self.is_random_instantiatable, expression.quantified_vars[1])
@@ -920,10 +846,6 @@ class InstantiateQuantifier(Implication):
 
 
 class RegexAppend(Implication):
-    def __init__(self, formula_pool=None):
-        self.name = "REGEXAPP"
-        super().__init__(formula_pool)
-
     def matches_LHS(self, expression):
         return expression.op == "str.in_re"
 
@@ -935,10 +857,6 @@ class RegexAppend(Implication):
 
 
 class DropConjunct(Implication):
-    def __init__(self, formula_pool=None):
-        self.name = "DROPCONJ"
-        super().__init__(formula_pool)
-
     def matches_LHS(self, expression):
         return expression.is_operator("and") and expression.has_at_least_n_subterms(2)
 
@@ -963,10 +881,6 @@ class DropConjunct(Implication):
 
 
 class AddDisjunct(Implication):
-    def __init__(self, formula_pool=None):
-        self.name = "ADDDISJ"
-        super().__init__(formula_pool)
-
     def matches_LHS(self, expression):
         return True
 
@@ -991,9 +905,6 @@ class AddDisjunct(Implication):
 
 
 class OrToImp(Implication):
-    def __init__(self):
-        self.name = "ORTOIMP"
-
     def matches_LHS(self, expression):
         return expression.has_n_subterms(2) and expression.is_operator("or")
 
@@ -1010,10 +921,6 @@ class OrToImp(Implication):
 
 
 class StringLeqApp(Implication):
-    def __init__(self, formula_pool=None):
-        self.name = "STRLEQAPP"
-        super().__init__(formula_pool)
-
     def matches_LHS(self, expression):
         return expression.is_operator("str.<=")
 
@@ -1027,10 +934,6 @@ class StringLeqApp(Implication):
 
 
 class StringLeqSubstr(Implication):
-    def __init__(self, formula_pool=None):
-        self.name = "STRLEQSUBSTR"
-        super().__init__(formula_pool)
-
     def matches_LHS(self, expression):
         return expression.is_operator("str.<=")
 
@@ -1071,29 +974,11 @@ class StringLeqSubstr(Implication):
 # TODO move these instantiations directly into the generator
 
 
-def RelationPreservingAutomorphism(R, f, r, name):
+def RelationPreservingAutomorphism(R, f, r):
     """
     A relation preserving automorphism is a homomorphism f:r|R -> s|S with:
 
     * R = S
     * r = s
     """
-    return Homomorphism(R=R, r=r, S=R, s=r, f=f, name=name)
-
-
-def StringContainsLength():
-    return Homomorphism(
-        r="String", R="str.contains", s="Int", S=">=", f="str.len", name="CONTAINSLEN"
-    )
-
-
-def StringPrefixLength():
-    return Homomorphism(
-        r="String", R="str.prefixof", s="Int", S="<=", f="str.len", name="PREFIXLEN"
-    )
-
-
-def StringSuffixLength():
-    return Homomorphism(
-        r="String", R="str.suffixof", s="Int", S="<=", f="str.len", name="SUFFIXLEN"
-    )
+    return Homomorphism(R=R, r=r, S=R, s=r, f=f)

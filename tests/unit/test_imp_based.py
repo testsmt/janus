@@ -43,23 +43,23 @@ if z3 == None:
     exit(1)
 
 tests = [  # filename, rule, oracle, number of candidates per formula in order of file, chosen candidate for each formula or None
-    ("phi1", "OPREP[>=][=][['Int', 'Real']]", "sat", [1, 0, 0], [0, None, None]),
-    ("phi2", "OPREP[<=][=][['Int', 'Real']]", "sat", [0, 1], [None, 0]),
+    ("phi1", "OPREP_NUM_EQ_GEQ", "sat", [1, 0, 0], [0, None, None]),
+    ("phi2", "OPREP_NUM_EQ_LEQ", "sat", [0, 1], [None, 0]),
     (
         "Primes_true-unreach-call.c_127",
-        "OPREP[<=][=][['Int', 'Real']]",
+        "OPREP_NUM_EQ_LEQ",
         "unsat",
         [3, 0],
         [2, None],
     ),
     (
         "z3-issue-4891-mod",
-        "OPREP[distinct][>][['Int', 'Real']]",
+        "OPREP_NUM_GE_DIST",
         "sat",
         [0, 0, 1, 0, 0, 0],
         [None, None, None, None, None, None],
     ),
-    ("z3-issue-4804-mod", "OPREP[<=][=][['Int', 'Real']]", "unsat", [0, 3], [None, 2]),
+    ("z3-issue-4804-mod", "OPREP_NUM_EQ_LEQ", "unsat", [0, 3], [None, 2]),
     ("formula_101_another", "QUANTSWP", "sat", [5], [3]),
     ("prefixof", "PREFIXLEN", "sat", [1], [0]),
     ("suffixof", "SUFFIXLEN", "sat", [1], [0]),
@@ -81,7 +81,7 @@ tests = [  # filename, rule, oracle, number of candidates per formula in order o
     ("imp_lift_to_forall", "IMPLIFTTOFORALL", "sat", [1, 1], [0, 0]),
     (
         "prefix-contains",
-        "OPREP[str.contains][str.prefixof][['String']]",
+        "OPREP_STR_PREFIX_CONTAINS",
         "sat",
         [1],
         [0],
@@ -89,18 +89,18 @@ tests = [  # filename, rule, oracle, number of candidates per formula in order o
     ("instantiate-quantifier", "INSTQUANT", "sat", [1, 1], [0, 0]),
     ("instantiate-quantifier-string", "INSTQUANT", "sat", [1], [0]),
     ("instantiate-quantifier-string2", "INSTQUANT", "sat", [1], [0]),
-    ("re1", "REGEXMOD[concat_to_option_power]", "sat", [1], [0]),
-    ("re2", "REGEXMOD[OPREP[re.*][re.+]]", "sat", [1], [0]),
-    ("re3", "REGEXMOD[add_plus]", "sat", [1], [0]),
-    ("re4", "REGEXMOD[OPREP[re.union][re.inter]]", "sat", [1], [0]),
-    ("re5", "REGEXMOD[add_free_union]", "sat", [1], [0]),
+    ("re1", "RE_CONCAT_TO_OPTION_POWER", "sat", [1], [0]),
+    ("re2", "OPREP_RE_PLUS_STAR", "sat", [1], [0]),
+    ("re3", "RE_ADD_PLUS", "sat", [1], [0]),
+    ("re4", "OPREP_RE_INTER_UNION", "sat", [1], [0]),
+    ("re5", "RE_ADD_FREE_UNION", "sat", [1], [0]),
     ("regex-app1", "REGEXAPP", "sat", [1], [0]),
     ("regex-app2", "REGEXAPP", "sat", [1], [0]),
     ("free-variables-regression", "INSTQUANT", "sat", [2, 1], [0, 0]),
-    ("regex-change-range", "REGEXMOD[change_range]", "sat", [1, 1], [0, 0]),
-    ("regex-change-range2", "REGEXMOD[change_range]", "sat", [1, 1], [0, 0]),
-    ("inter-idempotent", "REGEXMOD[inter_idempotent]", "sat", [1], [0]),
-    ("add_plus", "REGEXMOD[add_plus]", "sat", [1], [0])
+    ("regex-change-range", "RE_CHANGE_RANGE", "sat", [1, 1], [0, 0]),
+    ("regex-change-range2", "RE_CHANGE_RANGE", "sat", [1, 1], [0, 0]),
+    ("inter-idempotent", "RE_INTER_IDEMPOTENT", "sat", [1], [0]),
+    ("add_plus", "RE_ADD_PLUS", "sat", [1], [0])
     #        , ('distribute_union_over_concat', "REGEXMOD[distribute_union_concat]", 'sat', [1], [0])
     ,
     ("instantiate-quantifier-regression", "INSTQUANT", "unsat", [1], [0]),
@@ -121,7 +121,7 @@ tests = [  # filename, rule, oracle, number of candidates per formula in order o
     ("random-value-global", "INSTQUANT", "sat", [1], [0]),
     ("relprevaut-1", "EQ-ABS-INT", "sat", [1], [0]),
     ("relprevaut-2", "GEQ-ADD-INT-R", "sat", [1], [0]),
-    ("homomorphism-1", "PREFIX-STRLEN", "sat", [1], [0]),
+    ("homomorphism-1", "HOM_PREFIX_STRLEN", "sat", [1], [0]),
     ("homomorphism-2", "INT-LEQ-SUBSTR-PREFIX", "sat", [1, 0], [0, None]),
     ("homomorphism-3", "INT-GEQ-SUBSTR-SUFFIX", "sat", [1], [0]),
     (
@@ -131,7 +131,7 @@ tests = [  # filename, rule, oracle, number of candidates per formula in order o
         [0, 1],
         [None, 0],
     ),
-    ("str-distinct", "STREQDIST", "sat", [1], [0]),
+    ("str-distinct", "STREQDISTAPP", "sat", [1], [0]),
     ("number-relation-shift-3", "NUMRELSHIFTSKEWED", "sat", [1], [0])
     # TODO waiting on https://github.com/wintered/formula-weaking-strengthening/issues/3
     # , ('quantifier-instantiation-let-regression', lambda formulas: InstantiateQuantifier(formulas), 'sat', [1], [0])
@@ -139,9 +139,9 @@ tests = [  # filename, rule, oracle, number of candidates per formula in order o
     ("leq-substr-homomorphism-regression", "INT-LEQ-SUBSTR-PREFIX", "sat", [1], [0]),
     ("str-isdigit", "STR-EQ-ISDIGIT-EQ", "sat", [1], [0]),
     ("fromint-distinct", "INT-LE-FROM_INT-DISTINCT", "sat", [1], [0]),
-    ("regex-add-plus", "REGEXMOD[add_plus]", "sat", [1], [0]),
-    ("regex-add-opt", "REGEXMOD[add_opt]", "sat", [1], [0]),
-    ("regex-add-loop", "REGEXMOD[add_loop]", "sat", [1], [0]),
+    ("regex-add-plus", "RE_ADD_PLUS", "sat", [1], [0]),
+    ("regex-add-opt", "RE_ADD_OPT", "sat", [1], [0]),
+    ("regex-add-loop", "RE_ADD_LOOP", "sat", [1], [0]),
     # , ('reactivity-lemma-node2938', lambda formulas: NumberRelationConstantShift('Real', 1), 'sat', [12], [4])
     # , ('ETCS-essentials-live-range2.proof-node1046', lambda formulas: NumberRelationConstantShift('Real', 7.4), 'sat', [14], [12])
     # , ('z3-issue-5042-mod', lambda formulas: NumberRelationSkewedShift('Real', 1), 'sat', [2], [1])
@@ -149,10 +149,10 @@ tests = [  # filename, rule, oracle, number of candidates per formula in order o
 
 
 class MockArgs:
-    def __init__(self, oracle):
+    def __init__(self, oracle, rule_set):
         self.iterations = 1
         self.oracle = oracle
-        self.rule_set = None
+        self.rule_set = rule_set
 
 
 class ImpBasedUnitTest(unittest.TestCase):
@@ -178,23 +178,13 @@ def test_case(name, ruleName, oracle, num_candidates, chosen_candidates):
         script, glbls = parse_file(input_file, silent=True)
         typecheck(script, glbls)
 
-        args = MockArgs(oracle)
+        args = MockArgs(oracle, rule_set=ruleName)
 
         # Some rules contain randomness, so we need to fix a seed in order to deterministically test them.
         random.seed(17)
 
         generator = ImplicationBasedWeakeningStrengthening(script, glbls, args)
-        all_rules = generator.rules
-        generator.rules = [r for r in generator.rules if r.name == ruleName]
-        if len(generator.rules) != 1:
-            print(f"Spelling mistake in operator name: {ruleName}")
-            print("Available names:")
-            for rule in all_rules:
-                print(rule.name)
-            exit(1)
-
         rule = generator.rules[0]
-
         formulas = generator.get_formulas(script)
 
         self.assertEqual(len(formulas), len(num_candidates))
@@ -204,7 +194,7 @@ def test_case(name, ruleName, oracle, num_candidates, chosen_candidates):
             self.assertEqual(
                 len(candidates),
                 n,
-                f"Expected {n} candidates for {rule.name} for {name}.smt2.",
+                f"Expected {n} candidates for {ruleName} for {name}.smt2.",
             )
             if i is not None:
                 rule.apply(candidates[i][0], candidates[i][1] * generator.oracle)
