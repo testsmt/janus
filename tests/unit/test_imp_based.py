@@ -35,7 +35,6 @@ from src.parsing.Typechecker import typecheck
 from src.parsing.Parse import *
 from src.mutators.ImplicationBasedWeakeningStrengthening.ImplicationBasedWeakeningStrengthening import *
 from src.mutators.ImplicationBasedWeakeningStrengthening.rules import *
-from src.mutators.ImplicationBasedWeakeningStrengthening.rules.rule_set import RuleSet
 
 z3 = shutil.which("z3") or os.environ.get("Z3_EXE", None)
 
@@ -185,7 +184,7 @@ def test_case(name, ruleName, oracle, num_candidates, chosen_candidates):
         random.seed(17)
 
         generator = ImplicationBasedWeakeningStrengthening(script, glbls, args)
-        rule = RuleSet[list(generator.rules)[0]]
+        rule = generator.rules[0]
         formulas = generator.get_formulas(script)
 
         self.assertEqual(len(formulas), len(num_candidates))

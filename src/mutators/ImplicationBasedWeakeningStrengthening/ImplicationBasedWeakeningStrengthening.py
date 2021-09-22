@@ -34,8 +34,7 @@ from src.parsing.Ast import Assert
 
 from src.mutators.ImplicationBasedWeakeningStrengthening.common import *
 from src.mutators.ImplicationBasedWeakeningStrengthening.rules.rule_set import (
-    RuleSet,
-    parseRuleSet,
+    makeRuleSet,
 )
 
 
@@ -46,12 +45,12 @@ class ImplicationBasedWeakeningStrengthening(Mutator):
         assert args.oracle in ["sat", "unsat"]
         self.oracle = SAT if args.oracle == "sat" else UNSAT
 
-        self.rules = parseRuleSet(args.rule_set)
+        self.rules = makeRuleSet(args.rule_set)
 
         formulas = copy.deepcopy(self.get_formulas(script))
         for rule in self.rules:
-            RuleSet[rule].glbls = glbls
-            RuleSet[rule].formula_pool = formulas
+            rule.glbls = glbls
+            rule.formula_pool = formulas
 
     """
     Returns a list of AST node references paired with their parity
@@ -119,8 +118,7 @@ class ImplicationBasedWeakeningStrengthening(Mutator):
 
         if logging.getLogger().isEnabledFor(logging.INFO):
             applicableRules = 0
-            for rule_name in self.rules:
-                rule = RuleSet[rule_name]
+            for rule in self.rules:
                 candidates = []
                 for formula in formulas:
                     candidates.extend(self.get_candidates(formula, rule, 1))
@@ -129,11 +127,9 @@ class ImplicationBasedWeakeningStrengthening(Mutator):
                     applicableRules += 1
             logging.info(f"Number of applicable rules: {applicableRules}")
 
-        rules_in_random_order = list(self.rules)
-        random.shuffle(rules_in_random_order)
+        random.shuffle(self.rules)
 
-        for rule_name in rules_in_random_order:
-            rule = RuleSet[rule_name]
+        for rule in self.rules:
 
             candidates = []
 
@@ -148,8 +144,8 @@ class ImplicationBasedWeakeningStrengthening(Mutator):
                 to_replace, parity = random.choice(candidates)
                 rule.apply(to_replace, parity * self.oracle)
                 number_of_modifications_done += 1
-                logging.info(f"Chosen rule: {rule_name}")
-                chosen_rule = rule_name
+                logging.info(f"Chosen rule: {rule.name}")
+                chosen_rule = rule.name
 
                 # We successfully modified the script
                 success = True

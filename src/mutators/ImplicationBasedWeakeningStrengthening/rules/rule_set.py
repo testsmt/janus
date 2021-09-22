@@ -83,18 +83,28 @@ predefined_rule_set_names['basic'] = (
 ) - {'INSTQUANT'}
 
 # Returns a set of strings to be used as keys into 'RuleSet'
-def parseRuleSet(rule_set):
+def makeRuleSet(rule_set: str):
+
+    rule_names = []
+
     if not rule_set:
-        return set(RuleSet.keys())
+        rule_names = ALL_RULES.keys()
+    else:
+        rule_set = rule_set.strip()
+        if rule_set == 'all':
+            rule_names = ALL_RULES.keys()
 
-    rule_set = rule_set.strip()
-    if rule_set == 'all':
-        return set(RuleSet.keys())
+        elif rule_set in predefined_rule_set_names:
+            rule_names = predefined_rule_set_names[rule_set]
 
-    if rule_set in predefined_rule_set_names:
-        return predefined_rule_set_names[rule_set]
+        elif rule_set in ALL_RULES.keys():
+            rule_names = [rule_set]
+        else:
+            raise Exception(f'Not a valid rule set: {rule_set}')
 
-    if rule_set in RuleSet.keys():
-        return {rule_set}
-
-    raise Exception(f'Not a valid rule set: {rule_set}')
+    namedRules = [(rule_name, ALL_RULES[rule_name]) for rule_name in rule_names]
+    rules = []
+    for n, r in namedRules:
+        r.name = n
+        rules.append(r)
+    return rules
