@@ -77,7 +77,9 @@ seeds = str(os.path.dirname(os.path.realpath(__file__))) + "/seeds"
 
 # https://github.com/Z3Prover/z3/issues/5491
 print("Retesting z3#5491...")
-out = subprocess.getoutput(f"./bin/janus -o sat {z3_4_8_10} {seeds}/z3-5491-seed.smt2")
+out = subprocess.getoutput(
+    f"./bin/janus -o sat -rs 'STR-EQ-ISDIGIT-EQ' {z3_4_8_10} {seeds}/z3-5491-seed.smt2"
+)
 if "Detected implication incompleteness." not in out:
     exit(1)
 print("Successfully rediscovered.")

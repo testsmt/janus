@@ -78,10 +78,9 @@ class RegexRule(Rule):
 
 
 class RegexOperatorReplacement(RegexRule):
-    def __init__(self, opWeak, opStrong):
-        self.opWeak = opWeak
+    def __init__(self, opStrong, opWeak):
         self.opStrong = opStrong
-        super().__init__(f"OPREP[{opWeak}][{opStrong}]")
+        self.opWeak = opWeak
 
     def is_applicable_regex(self, regex, direction):
         return (direction == WEAKENING and regex.op == self.opStrong) or (

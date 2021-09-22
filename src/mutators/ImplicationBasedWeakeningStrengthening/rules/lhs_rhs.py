@@ -255,7 +255,7 @@ class Homomorphism(PolymorphicHomomorphism):
 
 
 class OperatorReplacement(PolymorphicHomomorphism):
-    def __init__(self, opWeak, opStrong, supportedSorts, reverseArguments=False):
+    def __init__(self, opStrong, opWeak, supportedSorts, reverseArguments=False):
         Π = reversed if reverseArguments else None
         super().__init__(
             S=opWeak,

@@ -129,9 +129,10 @@ class ImplicationBasedWeakeningStrengthening(Mutator):
                     applicableRules += 1
             logging.info(f"Number of applicable rules: {applicableRules}")
 
-        random.shuffle(self.rules)
+        rules_in_random_order = list(self.rules)
+        random.shuffle(rules_in_random_order)
 
-        for rule_name in self.rules:
+        for rule_name in rules_in_random_order:
             rule = RuleSet[rule_name]
 
             candidates = []
