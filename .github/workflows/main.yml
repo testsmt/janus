@@ -29,4 +29,4 @@ jobs:
         codespell --skip="Solver.py,SMTLIBv2*,*.g4,*.tokens,*.interp,*.smt2" bin/* config/* examples/* scripts/* src/* tests/*
     - name: Run Tests
       run: |
-        ./test.sh
+        ./scripts/test.sh
