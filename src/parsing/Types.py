@@ -126,7 +126,7 @@ NUMERICAL_OPS = [UNARY_MINUS, MINUS, PLUS, MULTIPLY, ABS, GTE, GT, LTE, LT]
 DIV = "div"
 MOD = "mod"
 
-INT_OPS = [DIV, MOD]
+INT_OPS = [DIV, MOD, ABS]
 
 # specific real ops
 REAL_DIV = "/"

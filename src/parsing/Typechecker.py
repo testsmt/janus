@@ -885,6 +885,8 @@ def typecheck_numeral(expr, ctxt):
         return typecheck_nary_numeral_ret(expr, ctxt)
     if expr.op in [GT, GTE, LT, LTE]:
         return typecheck_comp_ops(expr, ctxt)
+    if expr.op in INT_OPS:
+        return typecheck_int_ops(expr, ctxt)
 
 
 def typecheck_int_ops(expr, ctxt):

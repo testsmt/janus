@@ -61,7 +61,7 @@ if __name__ == "__main__":
 
     num_additional_output_lines = 0
 
-    def start_new_reducer(old_solver, new_solver, f):
+    def start_new_regression_reducer(old_solver, new_solver, f):
         os.rename(f'./bugs/{f}', f'./bugs/{f}.orig')
         return subprocess.Popen(
             [
@@ -78,6 +78,29 @@ if __name__ == "__main__":
                 str(SOLVER_TIMEOUT),
                 old_solver,
                 new_solver,
+            ],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+        )
+
+    def start_new_implication_reducer(solver, f, oracle, rule_name):
+        os.rename(f'./bugs/{f}', f'./bugs/{f}.orig')
+        return subprocess.Popen(
+            [
+                'timeout',
+                TIMEOUT_PER_REDUCER,
+                'ddsmt',
+                '-j',
+                str(NUM_PROCS_PER_REDUCER),
+                '-v',
+                '--ignore-output',
+                f"./bugs/{f}.orig",
+                f"./reducing/{f}",
+                './bin/check-implication.py',
+                str(SOLVER_TIMEOUT),
+                solver,
+                oracle,
+                rule_name,
             ],
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
@@ -157,7 +180,9 @@ if __name__ == "__main__":
                         if 'regression-incompleteness-cvc5' in bug
                         else (Z3_OLD, Z3_NEW)
                     )
-                    rs.append((bug, start_new_reducer(solver_old, solver_new, bug)))
+                    rs.append(
+                        (bug, start_new_regression_reducer(solver_old, solver_new, bug))
+                    )
 
         reducible_bugs = list(
             filter(
@@ -176,7 +201,7 @@ if __name__ == "__main__":
                 if 'regression-incompleteness-cvc5' in bug
                 else (Z3_OLD, Z3_NEW)
             )
-            rs.append((bug, start_new_reducer(solver_old, solver_new, bug)))
+            rs.append((bug, start_new_regression_reducer(solver_old, solver_new, bug)))
 
     def print_status():
 
@@ -284,9 +309,13 @@ if __name__ == "__main__":
         if len(rs) >= MAX_NUM_REDUCERS:
             break
         if 'regression-incompleteness-z3' in bug:
-            rs.append((bug, start_new_reducer(Z3_OLD, Z3_NEW, bug)))
+            rs.append((bug, start_new_regression_reducer(Z3_OLD, Z3_NEW, bug)))
         if 'regression-incompleteness-cvc5' in bug:
-            rs.append((bug, start_new_reducer(CVC5_OLD, CVC5_NEW, bug)))
+            rs.append((bug, start_new_regression_reducer(CVC5_OLD, CVC5_NEW, bug)))
+        if 'implication-incompleteness-z3' in bug:
+            rs.append((bug, start_new_implication_reducer(Z3_NEW, bug)))
+        if 'implication-incompleteness-cvc5' in bug:
+            rs.append((bug, start_new_implication_reducer(CVC5_NEW, bug)))
 
     while True:
         print_status()
