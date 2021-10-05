@@ -380,10 +380,6 @@ class Fuzzer:
                 rand_appendix,
             )
             with open(logpath, "w") as log:
-                log.write("command: " + cli + "\n")
-                log.write("stderr:\n")
-                log.write(stderr)
-                log.write("stdout:\n")
                 log.write(stdout)
         return report
 
