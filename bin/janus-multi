@@ -40,9 +40,15 @@ rootpath = str(path.parent.absolute().parent)
 sys.path.append(rootpath)
 
 from fuzzing_configuration import *
+from src.reduction.Reducer import RegressionReducer, ImplicationReducer
 
 SOLVERS = [f'{Z3_NEW} | {Z3_OLD}', f'{CVC5_NEW} | {CVC5_OLD}']
 OUTPUT_WIDTH = 80
+# results from fuzzing
+BUG_DIR = './bugs/'
+# for temporary files created during reduction
+REDUCING_DIR = './reducing/'
+REDUCED_DIR = './reduced/'
 
 
 def pick_random_file(from_dir):
@@ -53,16 +59,23 @@ def pick_random_file(from_dir):
         return f"{from_dir}/{next_step}"
 
 
+
 if __name__ == "__main__":
 
     start_time = datetime.datetime.now()
+
+    os.system(f"mkdir -p {BUG_DIR}")
+    os.system(f"mkdir -p {REDUCING_DIR}")
+    os.system(f"mkdir -p {REDUCED_DIR}")
+
     js = []
     rs = []
 
     num_additional_output_lines = 0
 
+    """
     def start_new_regression_reducer(old_solver, new_solver, f):
-        os.rename(f'./bugs/{f}', f'./bugs/{f}.orig')
+        os.rename(f'bugs/{f}', f'bugs/{f}.orig')
         return subprocess.Popen(
             [
                 'timeout',
@@ -83,8 +96,8 @@ if __name__ == "__main__":
             stderr=subprocess.STDOUT,
         )
 
-    def start_new_implication_reducer(solver, f, oracle, rule_name):
-        os.rename(f'./bugs/{f}', f'./bugs/{f}.orig')
+    def start_new_implication_reducer(solver, f, rule_name):
+        os.rename(f'bugs/{f}', f'bugs/{f}.orig')
         return subprocess.Popen(
             [
                 'timeout',
@@ -99,12 +112,12 @@ if __name__ == "__main__":
                 './bin/check-implication.py',
                 str(SOLVER_TIMEOUT),
                 solver,
-                oracle,
                 rule_name,
             ],
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
         )
+    """
 
     def start_new_instance():
 
@@ -152,12 +165,13 @@ if __name__ == "__main__":
             if os.path.exists(f"./reducing/{b}"):
                 os.remove(f"./reducing/{b}")
 
+
     def replace_finished():
         for i, j in enumerate(js):
             rc = j.poll()
             if rc is not None:
                 js[i] = start_new_instance()
-        for i, (f, r) in enumerate(rs):
+        for i, (f,so,sn,rn,r) in enumerate(rs):
             rc = r.poll()
             if rc is not None:
                 os.rename(f"./reducing/{f}", f"./reduced/{f}")
@@ -201,7 +215,7 @@ if __name__ == "__main__":
                 if 'regression-incompleteness-cvc5' in bug
                 else (Z3_OLD, Z3_NEW)
             )
-            rs.append((bug, start_new_regression_reducer(solver_old, solver_new, bug)))
+            rs.append((bug, solver_old, solver_new, None, start_new_regression_reducer(solver_old, solver_new, bug)))
 
     def print_status():
 
@@ -264,8 +278,8 @@ if __name__ == "__main__":
             if j.poll() is None:
                 running_j += 1
         running_r = 0
-        for b, r in rs:
-            if r.poll() is None:
+        for r in rs:
+            if r.is_finished():
                 running_r += 1
 
         num_processes = len(psutil.Process().children())
@@ -305,21 +319,41 @@ if __name__ == "__main__":
     for _ in range(MAX_NUM_INSTANCES):
         js.append(start_new_instance())
 
-    for bug in filter(lambda f: f.endswith('.smt2'), os.listdir('bugs')):
+    for bug in filter(lambda f: f.endswith('.smt2') and not f.endswith('-previous.smt2'), os.listdir('bugs')):
         if len(rs) >= MAX_NUM_REDUCERS:
             break
         if 'regression-incompleteness-z3' in bug:
-            rs.append((bug, start_new_regression_reducer(Z3_OLD, Z3_NEW, bug)))
+            reducer = RegressionReducer(bug, Z3_NEW, Z3_OLD)
+            reducer.start()
+            rs.append(reducer)
+            #rs.append((bug, Z3_OLD, Z3_NEW, None, start_new_regression_reducer(Z3_OLD, Z3_NEW, bug)))
         if 'regression-incompleteness-cvc5' in bug:
-            rs.append((bug, start_new_regression_reducer(CVC5_OLD, CVC5_NEW, bug)))
+            reducer = RegressionReducer(bug, CVC5_NEW, CVC5_OLD)
+            reducer.start()
+            rs.append(reducer)
+            #rs.append((bug, CVC5_OLD, CVC5_NEW, None, start_new_regression_reducer(CVC5_OLD, CVC5_NEW, bug)))
         if 'implication-incompleteness-z3' in bug:
-            rs.append((bug, start_new_implication_reducer(Z3_NEW, bug)))
+            known_file = f"bugs/{bug[:-5]}-previous.smt2"
+            rule_file = open(f"bugs/{bug[:-5]}.output", "r")
+            rule_name = rule_file.read()
+            rule_file.close()
+            reducer = ImplicationReducer(bug, Z3_NEW, rule_name)
+            reducer.start()
+            rs.append(reducer)
+            #rs.append((known_file, None, Z3_NEW, rule_name, start_new_implication_reducer(Z3_NEW, known_file, rule_name)))
         if 'implication-incompleteness-cvc5' in bug:
-            rs.append((bug, start_new_implication_reducer(CVC5_NEW, bug)))
+            known_file = f"bugs/{bug[:-5]}-previous.smt2"
+            rule_file = open(f"bugs/{bug[:-5]}.output", "r")
+            rule_name = rule_file.read()
+            rule_file.close()
+            reducer = ImplicationReducer(bug, CVC5_NEW, rule_name)
+            reducer.start()
+            rs.append(reducer)
+            #rs.append((known_file, None, CVC5_NEW, rule_name, start_new_implication_reducer(CVC5_NEW, known_file, rule_name)))
 
     while True:
         print_status()
-        replace_finished()
+#        replace_finished()
         time.sleep(5)
 
     killall()

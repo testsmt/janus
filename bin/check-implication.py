@@ -33,17 +33,23 @@ sys.path.append("./")
 from src.parsing.Parse import parse_file
 from src.parsing.Typechecker import typecheck, TypeCheckError
 from src.mutators.ImplicationBasedWeakeningStrengthening.ImplicationBasedWeakeningStrengthening import ImplicationBasedWeakeningStrengthening
-from tests.unit.test_imp_based import MockArgs
 import io
 import subprocess
 from contextlib import redirect_stdout
 
+# TODO this is shared with test_imp_based.py
+class MockArgs:
+    def __init__(self, oracle, rule_set):
+        self.iterations = 1
+        self.oracle = oracle
+        self.rule_set = rule_set
 
-if not len(sys.argv) == 6:
-    print("Wrong number of arguments. Usage: check-implication.py SOLVER_TIMEOUT SOLVER ORACLE RULE_NAME KNOWN_FILE")
+
+if not len(sys.argv) == 5:
+    print("Wrong number of arguments. Usage: check-implication.py SOLVER_TIMEOUT SOLVER RULE_NAME KNOWN_FILE")
     exit(1)
 
-[_, solver_timeout, solver, oracle, rule_name, known_file] = sys.argv
+[_, solver_timeout, solver, rule_name, known_file] = sys.argv
 
 known_result, known_err = subprocess.Popen( [*solver.split(" "), known_file], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate(solver_timeout)
 
@@ -51,9 +57,11 @@ if not known_err.decode('ascii').strip() == "": # or not new_err.decode('ascii')
     print("Solver error on known file")
     exit(1)
 
-if not known_result.decode('ascii').strip() == oracle:
-    print("Solver did not return {oracle} on known file")
+if not known_result.decode('ascii').strip() in ['sat', 'unsat']:
+    print("Solver did not decide known file")
     exit(1)
+
+oracle = known_result.decode('ascii').strip()
 
 UNKNOWN_FILE=f'{known_file}.unknown'
 
@@ -82,6 +90,7 @@ for f in formulas:
     candidates.extend(gen.get_candidates(f, rule, 1))
 
 for to_replace, parity in candidates:
+    tmp = to_replace.__dict__.copy()
     rule.apply(to_replace, parity * gen.oracle)
     with open(UNKNOWN_FILE, "w") as uf:
         uf.write(str(known))
@@ -89,6 +98,8 @@ for to_replace, parity in candidates:
     if unknown_result == "unknown":
         print("Successfully reproduced unknown.")
         exit(0)
+    else:
+        to_replace.__dict__ = tmp
 
 print("Input is not a regression incompleteness.")
 exit(3)
