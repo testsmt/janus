@@ -1,4 +1,5 @@
 # Janus
+<p align="center"><a><img width="160" alt="portfolio_view" align="center" src="misc/logo.png"></a></p>
 
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![MIT License](https://img.shields.io/badge/License-MIT-black.svg)](https://opensource.org/licenses/MIT)
