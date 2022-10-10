@@ -69,7 +69,7 @@ For details on the internals of janus, read our ASE '22 paper. In it we describe
 </a>
 <br /><br />
 
-You can view all bugs reported with janus via the following [link](https://testsmt.github.io/janus.html). The research and tool was conducted and developed as part of Mauro Bringolf's master thesis with the [AST Lab](https://ast.ethz.ch/) at ETH Zurich. 
+You can view all bugs reported with janus via the following [link](https://testsmt.github.io/janus.html). The research and tool were conducted and developed as part of Mauro Bringolf's master thesis with the [AST Lab](https://ast.ethz.ch/) at ETH Zurich. 
 
 Feedback
 ---------
