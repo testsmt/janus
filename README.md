@@ -42,17 +42,17 @@ Clone the repository `https://github.com/testsmt/semantic-fusion-seeds` to obtai
 
 3. **Run janus** on the benchmarks e.g. with Z3 and cvc5. 
 
-a.) Regression incompleteness mode  
+    a.) Regression incompleteness mode  
 
-```bash
-janus "z3" -o sat examples/phi1.smt2
-```
+    ```bash 
+    janus "z3" -cr "z3-4.8.10" -o sat examples/phi1.smt2
+    ```
 
-b.) Implication incompleteness mode 
+    b.) Implication incompleteness mode 
 
-```bash
-janus "z3" -cr "z3-4.8.10" -o sat examples/phi1.smt2
-```
+    ```bash
+    janus "z3" -cr "z3-4.8.10" -o sat examples/phi1.smt2
+    ```
 
 Execute `janus --help` for more information.
 
