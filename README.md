@@ -40,7 +40,7 @@ Clone the repository `https://github.com/testsmt/semantic-fusion-seeds` to obtai
 
 2. **Get and build SMT solvers** for testing. Install two or more [SMT solvers](http://smtlib.cs.uiowa.edu/solvers.shtml) that support the SMT-LIB 2 format. You may find it convenient to add them to your PATH.
 
-3. **Run janus** on the benchmarks e.g. with Z3 and cvc5. 
+3. **Run janus** on the seeds e.g. with Z3 and cvc5. 
 
     a.) Regression incompleteness mode  
 
