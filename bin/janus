@@ -36,7 +36,7 @@ current_dir = os.getcwd()
 
 from src.base.Driver import run_checks
 from src.base.Error import raise_runtime_error
-from src.base.ArgumentParser import build_toolname_parser
+from src.base.ArgumentParser import build_janus_parser
 from src.base.Exitcodes import OK_BUGS, OK_NOBUGS, ERR_USAGE, ERR_INTERNAL
 
 from src.core.Fuzzer import Fuzzer
@@ -51,32 +51,32 @@ from config.ToolnameHelptext import (
 
 
 def main():
-    parser = build_toolname_parser(rootpath, current_dir, usage)
+    parser = build_janus_parser(rootpath, current_dir, usage)
 
     if len(sys.argv) == 1:
-
+        print(header,flush=True)
+        print()
         # Show medium-length description when called without args containing
         # one example and the usage dialogue.
-        print(header + "\n\nusage:" + usage + short_description, flush=True)
+        # print(header + "\n\nusage:" + usage + short_description, flush=True)
+        parser.print_usage()
         exit(ERR_USAGE)
 
     elif "-h" in sys.argv or "--help" in sys.argv:
-
-        # If called for help, show long description containing general
-        # information on opfuzz, two examples with in-depth explanation,
-        # and the usage dialogue.
-        print(
-            header
-            + "\n"
-            + long_description
-            + "\n"
-            + options
-            + "\n"
-            + "usage:"
-            + usage
-            + "\n",
-            flush=True,
-        )
+#          print(
+            # header + "\n",
+            # # + long_description
+            # # + "\n"
+            # # + options
+            # # + "\n"
+            # # + "usage:"
+            # # + usage
+            # # + "\n",
+            # flush=True
+        # )
+        print(header, flush=True)
+        print()
+        parser.print_help()
         exit(OK_NOBUGS)
 
     else:

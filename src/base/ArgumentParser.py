@@ -111,7 +111,7 @@ def add_args(parser, rootpath, current_dir):
         "--walk-length",
         type=int,
         default=1,
-        help="[impbased] Number of incremental steps before restarting on the seed (default: 1). \
+        help="Number of incremental steps before restarting on the seed (default: 1). \
         This corresponds to a fully non-incremental solver and a fully incremental generator is obtained by setting \
         '--walk-length' equal to '--iterations'.",
     )
@@ -120,7 +120,7 @@ def add_args(parser, rootpath, current_dir):
         "--completeness-regressions",
         type=str,
         default="",
-        help="[impbased] Pass a single solver command to search for completeness regressions against. (default: 1).\
+        help="Pass a single solver command to search for completeness regressions against.\
               This disables soundness testing and instead searches for completeness regressions in any configured solver\
               against the solver passed here.\
               A standard setup is to use the latest release of a solver here and configure trunk version(s) as solver(s)\
@@ -134,11 +134,11 @@ def add_args(parser, rootpath, current_dir):
     )
 
 
-def build_toolname_parser(rootpath, current_dir, usage):
+def build_janus_parser(rootpath, current_dir, usage):
     parser = ArgumentParser(
         description="",
         usage=usage,
-        formatter_class=argparse.RawDescriptionHelpFormatter,
+        # formatter_class=argparse.RawDescriptionHelpFormatter,
         add_help=False,
     )
     add_args(parser, current_dir, rootpath)
