@@ -36,7 +36,7 @@ Usage
 ------
 
 1. **Get pre-processed SMT-LIB 2 seeds**. 
-Clone the repository `git clone https://github.com/testsmt/semantic-fusion-seeds` to obtain pre-processed SMT-LIB files (sat/unsat). Alternatively, you can download and pre-process benchmarks directly from the [SMT-LIB website](http://smtlib.cs.uiowa.edu/benchmarks.shtml) or supply your own benchmarks.
+Clone the repository `https://github.com/testsmt/semantic-fusion-seeds` to obtain pre-processed SMT-LIB files (sat/unsat). Alternatively, you can download and pre-process benchmarks directly from the [SMT-LIB website](http://smtlib.cs.uiowa.edu/benchmarks.shtml) or supply your own benchmarks.
 
 2. **Get and build SMT solvers** for testing. Install two or more [SMT solvers](http://smtlib.cs.uiowa.edu/solvers.shtml) that support the SMT-LIB 2 format. You may find it convenient to add them to your PATH.
 
