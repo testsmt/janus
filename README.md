@@ -17,7 +17,7 @@ janus
 ------------
 A tool for testing SMT solver for incompleteness bugs, i.e., unexpected unknown-results. janus has found dozens of incompleteness bugs in in the two state-of-the-art SMT solvers Z3 and cvc5. 
 
-**Incompletness bug types:** janus can find two types of incompleteness bugs, regression incompleteneses and implication incompletenesses. Regression incompletenesses are caused by (recent) code changes leading to an incompleteness on previously decided formulas. Typically they affect client software that worked correctly with an older version of the SMT solver but fails after updating the SMT solver. Implication incompletenesses occur when an SMT solver can decide a given input formula but minor changes in the formula cause the solver to report unknown. Such formula pairs can suggest possible improvements for SMT solvers, e.g., to formula rewriters, pre-processors, theory solvers etc. 
+**Incompleteness bug types:** janus can find two types of incompleteness bugs, regression incompleteneses and implication incompletenesses. Regression incompletenesses are caused by (recent) code changes leading to an incompleteness on previously decided formulas. Typically they affect client software that worked correctly with an older version of the SMT solver but fails after updating the SMT solver. Implication incompletenesses occur when an SMT solver can decide a given input formula but minor changes in the formula cause the solver to report unknown. Such formula pairs can suggest possible improvements for SMT solvers, e.g., to formula rewriters, pre-processors, theory solvers etc. 
 
 janus is part of the [YinYang project](testsmt.github.io) and its codebase is based on a fork of the SMT solver testing framework yinyang.
 
@@ -51,7 +51,7 @@ Clone the repository `https://github.com/testsmt/semantic-fusion-seeds` to obtai
     b.) Implication incompleteness mode 
 
     ```bash
-    janus "z3" -cr "z3-4.8.10" -o sat examples/phi1.smt2
+    janus "z3" -o sat examples/phi1.smt2
     ```
 
 Execute `janus --help` for more information.
