@@ -62,7 +62,7 @@ Execute `janus --help` for more information.
 Further Details
 -------------
 
-For the details on the internals of janus, read our ASE '22 paper. In it we describe **Weakening & Strengthening** which is the underlying technique behind janus, how we used janus in an incompleteness bug hunting campaign for Z3 and cvc5 etc.
+For details on the internals of janus, read our ASE '22 paper. In it we describe **Weakening & Strengthening** which is the underlying technique behind janus, how we used janus in an incompleteness bug hunting campaign for Z3 and cvc5 etc.
 
 <a href="https://testsmt.github.io/papers/bringolf-winterer-su-ase22.pdf">
     <img src="misc/paper_snapshot.png" width="700" alt="portfolio_view" align="center" />
