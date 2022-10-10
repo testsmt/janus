@@ -22,7 +22,11 @@
 
 from src.base.Version import VERSION
 
-header = "janus --  a tool for testing SMT solver for incompleteness bugs [version: " + VERSION + "]"
+header = (
+    "janus --  a tool for testing SMT solver for incompleteness bugs [version: "
+    + VERSION
+    + "]"
+)
 
 usage = """ janus [options] solver_clis seed_file   [optionally, more seed files]
        janus [options] solver_clis seed_folder [optionally, more seed folders]

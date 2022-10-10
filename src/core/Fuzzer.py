@@ -201,7 +201,7 @@ class Fuzzer:
             testcase_writer.write(script.__str__())
 
         for sol_cli, _ in self.args.SOLVER_CLIS:
-            baseline_cli = self.args.completeness_regressions 
+            baseline_cli = self.args.completeness_regressions
             testbook.append((sol_cli, baseline_cli, testcase))
         return testbook
 

@@ -54,7 +54,7 @@ def main():
     parser = build_janus_parser(rootpath, current_dir, usage)
 
     if len(sys.argv) == 1:
-        print(header,flush=True)
+        print(header, flush=True)
         print()
         # Show medium-length description when called without args containing
         # one example and the usage dialogue.
@@ -63,16 +63,16 @@ def main():
         exit(ERR_USAGE)
 
     elif "-h" in sys.argv or "--help" in sys.argv:
-#          print(
-            # header + "\n",
-            # # + long_description
-            # # + "\n"
-            # # + options
-            # # + "\n"
-            # # + "usage:"
-            # # + usage
-            # # + "\n",
-            # flush=True
+        #          print(
+        # header + "\n",
+        # # + long_description
+        # # + "\n"
+        # # + options
+        # # + "\n"
+        # # + "usage:"
+        # # + usage
+        # # + "\n",
+        # flush=True
         # )
         print(header, flush=True)
         print()
