@@ -45,14 +45,16 @@ Clone the repository `https://github.com/testsmt/semantic-fusion-seeds` to obtai
     a.) Regression incompleteness mode  
 
     ```bash 
-    janus "z3" -cr "z3-4.8.10" -o sat examples/phi1.smt2
+    janus "z3-trunk" -cr "z3-4.8.10" -o sat examples/phi1.smt2
     ```
+    This command checks the z3-trunk against its stable release z3-4.8.10 for incompleteness regressions.
 
     b.) Implication incompleteness mode 
 
     ```bash
-    janus "z3" -o sat examples/phi1.smt2
+    janus "z3;cvc5" -o sat examples/phi1.smt2
     ```
+    This command checks both z3 and cvc5 for implication incompletenesses.
 
 Execute `janus --help` for more information.
 
